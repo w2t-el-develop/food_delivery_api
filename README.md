@@ -181,12 +181,12 @@ END FUNCTION
 flowchart TD
     Start((start))
     Start --> A{If user not exist}
-    A -->|yes| B[return Error<br/>cus_NOT_FOUND]
+    A -->|yes| B[return Error<br/>customer_NOT_FOUND]
     A -->|no| C[open cart]
     C --> D{Is customer<br/>has cart ?}
     D -->|no| E[return Error]
     D --> F[select newQuantity<br/>&& sumit]
-    F --> G{newQuantity<br/>between 1, 99}
+    F --> G{Is newQuantity<br/>between 1, 99}
     G -->|no| H[return Error]
     G --> I{Is cartItem<br/>available}
     I -->|no| J[return Error]
@@ -198,35 +198,30 @@ flowchart TD
 
 ```mermaid
 sequenceDiagram
-    participant UI
     participant controller
     participant Repository
     participant DataBase
 
-    UI->>controller: api/cusID
     controller->>Repository: checkExitCustomer(cusID)
     Repository->>DataBase: findByID(cusID)
     DataBase-->>Repository: 
     Repository-->>controller: 
 
-    UI->>controller: open cart
     controller->>Repository: checkCustomerHasCart
     Repository->>DataBase: findByID(cartID)
     DataBase-->>Repository: 
     Repository-->>controller: 
 
-    UI->>controller: select newQuantity && sumit
-    controller->>controller: newQuantity Between 1, 99
-    controller->>Repository: checkIsAvailable
+    controller->>controller: IS newQuantity Between 1, 99
+    controller->>Repository: checkcartItemIsAvailable
     Repository->>DataBase: findStatusItem(CartItemID)
     DataBase-->>Repository: 
     Repository-->>controller: 
 
-    controller->>Repository: sateNewQuantity
+    controller->>Repository: save NewQuantity
     Repository->>DataBase: sava(cartItem)
     DataBase-->>Repository: 
     Repository-->>controller: 
-    controller-->>UI: ok or NotFound
 ```
 
 ### C. Request Body Update Quantity
@@ -238,13 +233,13 @@ START
 
     Is user exist?
 
-    IF user does not exist
+    IF customer does not exist
         RETURN Error
     END IF
 
-    Is user has cart?
+    Is customer has cart?
 
-    IF user does not have cart
+    IF customer does not have cart
         RETURN Error
 
     // update quantity
