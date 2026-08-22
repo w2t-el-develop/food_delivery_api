@@ -53,16 +53,16 @@ The Add to Cart feature allows customers to append items to their active shoppin
 
 ```mermaid
 flowchart TD
-    Start([Start: User Request]) --> CheckAuth{Is User Signed In?}
+    Start([Start: Customer Request]) --> CheckAuth{Is Customer Signed In?}
     
-    CheckAuth -- No --> SignUp[Process Sign Up & Store in DB] --> CreateCart[Create New Cart for User]
-    CheckAuth -- Yes --> VerifyUser{User Exists in DB?}
+    CheckAuth -- No --> SignUp[Process Sign Up & Store in DB] --> CreateCart[Create New Cart for Customer]
+    CheckAuth -- Yes --> VerifyCustomer{Customer Exists in DB?}
     
-    VerifyUser -- No --> SignUp
-    VerifyUser -- Yes --> CheckUserCart{Does User Have a Cart?}
+    VerifyCustomer -- No --> SignUp
+    VerifyCustomer -- Yes --> CheckCustomerCart{Does Customer Have a Cart?}
     
-    CheckUserCart -- No --> CreateCart
-    CheckUserCart -- Yes --> GetCart[Fetch User cart_id]
+    CheckCustomerCart -- No --> CreateCart
+    CheckCustomerCart -- Yes --> GetCart[Fetch Customer cart_id]
     CreateCart --> GetCart
     
     GetCart --> CheckQuantity{Is quantity > 0?}
@@ -83,20 +83,20 @@ flowchart TD
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Client as Client / UI
+    actor Client as Client 
     participant Auth as Auth Module
     participant CartAPI as Cart Controller
     participant Service as Cart Service
     participant DB as Database
 
-    Client->>Auth: User Sign In / Check Status
+    Client->>Auth: Customer Sign In / Check Status
     Auth->>DB: SELECT FROM Customer WHERE customer_id
-    alt User does not exist
+    alt Customer does not exist
         Auth->>DB: INSERT INTO Customer (Sign Up)
         Auth->>DB: INSERT INTO Cart (Create initial Cart)
     end
 
-    Client->>CartAPI: POST /api/v1/cart/add (customerId, menu_item_id, quantity)
+    Client->>CartAPI: POST /api/v1/cart/add (customer_Id, menu_item_id, quantity)
     CartAPI->>Service: addToCart(customerId, menu_item_id, quantity)
     
     Service->>DB: SELECT FROM Cart WHERE customer_id
@@ -121,7 +121,6 @@ sequenceDiagram
 ```
 
 ---
-
 ### C. Backend Implementation Logic
 
 #### Pseudo Code
@@ -129,13 +128,13 @@ sequenceDiagram
 ```text
 FUNCTION addToCart(customerId, menu_item_id, quantity):
 
-    // 1. User Authentication & Existence Check
+    // 1. Customer Authentication & Existence Check
     user = Database.find("Customer", WHERE customer_id == customerId)
     IF user IS NULL THEN
-        user = signUpUser(customerId)
+        Customer = signUpCustomer(customerId)
     END IF
 
-    // 2. Ensure User Has an Active Cart
+    // 2. Ensure Customer Has an Active Cart
     cart = Database.find("Cart", WHERE customer_id == customerId)
     IF cart IS NULL THEN
         cart = NEW Cart()
