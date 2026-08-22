@@ -2,6 +2,8 @@ package project.fooddelivery.api.feature.cart;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-interface CartRepository extends JpaRepository<String, Cart> {
+import java.util.UUID;
+
+interface CartRepository extends JpaRepository<Cart, UUID> {
 
 }
