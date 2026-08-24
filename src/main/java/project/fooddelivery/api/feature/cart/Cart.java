@@ -12,7 +12,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "cart",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uq_cart_item", columnNames = {"cart_id", "menu_item_id"})
+                @UniqueConstraint(name = "uq_cart", columnNames = {"cart_id", "customer_id"})
         }
 )
 public class Cart {
@@ -22,6 +22,6 @@ public class Cart {
     @Column(name = "cart_id", nullable = false, updatable = false)
     private UUID cartId;
     @Column(name = "customer_id")
-    private String customerId;
+    private UUID customerId;
 
 }
