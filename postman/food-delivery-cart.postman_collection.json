@@ -1,0 +1,193 @@
+{
+  "info": {
+    "_postman_id": "b6f2a9d1-4c3e-4e9a-9b7a-food-delivery-cart",
+    "name": "Food Delivery API - Cart",
+    "description": "Tests for the cart feature endpoints (GET /cart/customer/{customerId}, GET /cart/cart-id/{cartId}). Run the app locally on port 8080 (Postgres via the java_eats_postgres docker container) before running this collection.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080", "type": "string" },
+    { "key": "customerId", "value": "01a03495-11df-726b-b30e-b26603fcdfd3", "type": "string", "description": "A real customer_id that owns a non-empty cart" },
+    { "key": "cartId", "value": "01a03495-11df-72fe-b7a4-f70310fd9d51", "type": "string", "description": "The cart_id belonging to customerId above" },
+    { "key": "unknownId", "value": "00000000-0000-0000-0000-000000000000", "type": "string", "description": "A well-formed UUID that does not exist in the DB" },
+    { "key": "invalidId", "value": "not-a-uuid", "type": "string", "description": "A malformed UUID string" }
+  ],
+  "item": [
+    {
+      "name": "Get Cart by Customer ID",
+      "item": [
+        {
+          "name": "200 - existing customer returns cart id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/cart/customer/{{customerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["cart", "customer", "{{customerId}}"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is JSON with id and customerId', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('id');",
+                  "    pm.expect(json).to.have.property('customerId');",
+                  "    pm.expect(json.id).to.be.a('string').and.not.be.empty;",
+                  "    pm.expect(json.customerId).to.eql(pm.collectionVariables.get('customerId'));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "404 - unknown customer",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/cart/customer/{{unknownId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["cart", "customer", "{{unknownId}}"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Error body shape', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.status).to.eql(404);",
+                  "    pm.expect(json.error).to.eql('NOT_FOUND');",
+                  "    pm.expect(json.message).to.include(pm.collectionVariables.get('unknownId'));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Get Cart by Cart ID",
+      "item": [
+        {
+          "name": "200 - existing cart id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/cart/cart-id/{{cartId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["cart", "cart-id", "{{cartId}}"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// NOTE: this endpoint currently returns the cart id as a raw string body,",
+                  "// not JSON (known limitation - see GlobalExceptionHandler/CartController).",
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Body equals the requested cart id', function () {",
+                  "    pm.expect(pm.response.text()).to.eql(pm.collectionVariables.get('cartId'));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "404 - unknown cart id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/cart/cart-id/{{unknownId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["cart", "cart-id", "{{unknownId}}"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Error body shape', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.status).to.eql(404);",
+                  "    pm.expect(json.error).to.eql('NOT_FOUND');",
+                  "    pm.expect(json.message).to.include(pm.collectionVariables.get('unknownId'));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "500 - malformed uuid (known gap: should be 400)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/cart/cart-id/{{invalidId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["cart", "cart-id", "{{invalidId}}"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Documents current behavior: an unhandled IllegalArgumentException falls through",
+                  "// to the generic exception handler and returns 500 instead of a 400 Bad Request.",
+                  "pm.test('Status code is currently 500 (should ideally be 400)', function () {",
+                  "    pm.response.to.have.status(500);",
+                  "});",
+                  "",
+                  "pm.test('Error body shape', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.status).to.eql(500);",
+                  "    pm.expect(json.error).to.eql('INTERNAL_SERVER_ERROR');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
