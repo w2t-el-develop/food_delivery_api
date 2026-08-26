@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -22,6 +23,8 @@ public class Cart {
     @Column(name = "cart_id", nullable = false, updatable = false)
     private UUID cartId;
     @Column(name = "customer_id")
-    private String customerId;
+    private UUID customerId;
+    @OneToMany(mappedBy = "cartId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CartItem> cartItems;
 
 }
