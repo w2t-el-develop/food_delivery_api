@@ -254,3 +254,161 @@ START
 
     sava change in Db
 ```
+
+### 1. View Cart Flowchart ([view_cart_flowchart.mmd])
+
+```mermaid
+flowchart TD
+    H([Actor requests cart info]) --> I[Backend fetches cart items from DB]
+    I --> J[Backend checks cart items in the menu via DB]
+    J --> K[DB returns item prices and existence]
+    K --> L[Backend updates prices and checks item existence]
+    L --> M[Backend saves updated cart info to DB]
+    M --> N[Backend returns updated cart info]
+    N --> O([Actor receives updated cart info])
+ 
+```
+
+---
+
+### 2. Show Cart Sequence Diagram & Pseudocode ([show_cart_sequence.mmd])
+
+#### Sequence Diagram
+```mermaid
+sequenceDiagram
+    actor Client as Actor
+    participant Backend as backend
+    participant DB as database
+ 
+    Client->>Backend: send API request with customer id
+    Backend->>DB: check whether the customer exists and cart has items
+    DB-->>Backend: return customer/cart data
+ 
+    alt there is a cart with items
+        Backend-->>Client: return the cart id
+ 
+        Client->>Backend: request cart info
+        Backend->>DB: fetch cart items
+        DB-->>Backend: return cart items
+        Backend->>DB: check cart items in the menu
+        DB-->>Backend: return item prices and existence
+        Backend->>Backend: update prices and check item existence
+        Backend->>DB: save updated cart info
+        DB-->>Backend: confirm save
+        Backend-->>Client: return the updated cart info
+    else there is no cart
+        Backend-->>Client: return null
+    end
+ 
+```
+
+#### Pseudocode
+```
+
+
+FUNCTION handleCartRequest(customerId):
+
+    customerData = DB.checkCustomerAndCart(customerId)
+
+    IF customerData.cartExists AND customerData.cartHasItems THEN
+
+        RETURN cartId TO actor
+
+        # ---- second call: actor requests full cart info ----
+        FUNCTION handleCartInfoRequest(cartId):
+
+            cartItems = DB.fetchCartItems(cartId)
+
+            FOR EACH item IN cartItems:
+                menuResult = DB.checkItemInMenu(item.id)
+
+                IF menuResult.exists THEN
+                    item.price = menuResult.price
+                ELSE
+                    item.markAsUnavailable()
+                END IF
+            END FOR
+
+            DB.saveUpdatedCart(cartId, cartItems)
+
+            RETURN updatedCartInfo TO actor
+
+    ELSE
+        RETURN null TO actor
+    END IF
+
+END FUNCTION
+
+```
+
+---
+
+### 3. Remove Cart Flowchart ([remove_cart_flowchart.mmd])
+
+```mermaid
+flowchart TD
+    A[Actor sends delete request<br/>cart id, item id] --> B[Backend receives request]
+    B --> C[Backend checks DB:<br/>does item exist in cart?]
+    C --> D{Item found?}
+    D -->|Yes| E[Backend removes item from cart in DB]
+    E --> F[Backend updates cart total price in DB]
+    F --> G[Backend returns success to Actor]
+    D -->|No| H[Backend returns error:<br/>item not found]
+ 
+```
+
+---
+
+### 4. Delete Cart Sequence Diagram & Pseudocode ([delete_cart_sequence.mmd])
+
+#### Sequence Diagram
+```mermaid
+sequenceDiagram
+    actor User as Actor
+    participant Backend as backend
+    participant DB as database
+ 
+    User->>Backend: delete request (cart id, item id)
+    Backend->>DB: check if item exists in cart
+ 
+    alt there is such item
+        DB-->>Backend: item found
+        Backend->>DB: remove item from cart
+        DB-->>Backend: item removed
+        Backend->>DB: update cart total price
+        DB-->>Backend: update success
+        Backend-->>User: return request success
+    else there is no such item in the cart
+        DB-->>Backend: item not found
+        Backend-->>User: response with error message
+    end
+ 
+```
+
+#### Pseudocode
+```
+FUNCTION deleteItemFromCart(cartId, itemId):
+
+    RECEIVE delete request from Actor with cartId and itemId
+
+    item = DB.findItemInCart(cartId, itemId)
+
+    IF item EXISTS:
+        DB.removeItemFromCart(cartId, itemId)
+        DB.updateCartTotalPrice(cartId)
+        RETURN success response to Actor
+    ELSE:
+        RETURN error response "item not found in cart" to Actor
+
+    END FUNCTION
+```
+
+view cart
+-get signature /api/v1/cart
+-input cart id
+-output status code [200] cart info
+
+delete item
+ -delete signature /api/v1/cart
+ -input cart-id with item-id
+ -output status[200] return total price
