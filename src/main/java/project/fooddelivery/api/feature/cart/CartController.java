@@ -22,8 +22,8 @@ public class CartController {
     }
 
     @GetMapping("cart-id/{cartId}")
-    public ResponseEntity<String> getCart(@PathVariable String cartId) {
-        return new ResponseEntity<>(cartService.getCartByCartId(cartId).id(), HttpStatus.OK);
+    public ResponseEntity<CartWithItemsResponse> getCart(@PathVariable String cartId) {
+        return new ResponseEntity<>(cartService.getCartByCartId(cartId), HttpStatus.OK);
     }
 
 

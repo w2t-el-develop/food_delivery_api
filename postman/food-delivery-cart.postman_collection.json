@@ -106,14 +106,18 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "// NOTE: this endpoint currently returns the cart id as a raw string body,",
-                  "// not JSON (known limitation - see GlobalExceptionHandler/CartController).",
                   "pm.test('Status code is 200', function () {",
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test('Body equals the requested cart id', function () {",
-                  "    pm.expect(pm.response.text()).to.eql(pm.collectionVariables.get('cartId'));",
+                  "pm.test('Response is the full cart with items', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.id).to.eql(pm.collectionVariables.get('cartId'));",
+                  "    pm.expect(json).to.have.property('customerId');",
+                  "    pm.expect(json.items).to.be.an('array').that.is.not.empty;",
+                  "    json.items.forEach(function (item) {",
+                  "        pm.expect(item).to.have.all.keys('id', 'menuItemId', 'quantity', 'price');",
+                  "    });",
                   "});"
                 ]
               }
