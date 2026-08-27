@@ -17,12 +17,12 @@ public class CartController {
     private final CartService cartService;
 
     @GetMapping("customer/{customerId}")
-    public ResponseEntity<CartIdResponse> getCartByCustomerId(@PathVariable String customerId) {
+    public ResponseEntity<CartIdResponseDTO> getCartByCustomerId(@PathVariable String customerId) {
         return new ResponseEntity<>(cartService.getCartByCustomerId(customerId) , HttpStatus.OK);
     }
 
     @GetMapping("cart-id/{cartId}")
-    public ResponseEntity<CartWithItemsResponse> getCart(@PathVariable String cartId) {
+    public ResponseEntity<CartWithItemsResponseDTO> getCart(@PathVariable String cartId) {
         return new ResponseEntity<>(cartService.getCartByCartId(cartId), HttpStatus.OK);
     }
 

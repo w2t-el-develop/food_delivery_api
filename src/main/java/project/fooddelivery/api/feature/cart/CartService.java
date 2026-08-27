@@ -17,7 +17,7 @@ class CartService {
 
   
  @Transactional(readOnly = true)
-public CartIdResponse getCartByCustomerId(String customerId) {
+public CartIdResponseDTO getCartByCustomerId(String customerId) {
     return  cartRepository.findByCustomerId(UUID.fromString(customerId))
             .map(cart -> {
                 if (cart.getCartItems().isEmpty()) {
@@ -29,7 +29,7 @@ public CartIdResponse getCartByCustomerId(String customerId) {
 }
 
    @Transactional(readOnly = true)
-    public CartWithItemsResponse getCartByCartId(String cartId) {
+    public CartWithItemsResponseDTO getCartByCartId(String cartId) {
         UUID cartUUID = UUID.fromString(cartId);
         return cartRepository.findById(cartUUID)
                 .map(cartMapper::toCartWithItemsResponse)

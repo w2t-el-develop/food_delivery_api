@@ -2,9 +2,9 @@ package project.fooddelivery.api.feature.cart;
 
 import java.util.List;
 
-public record CartWithItemsResponse(
+public record CartWithItemsResponseDTO(
     String id,
     String customerId,
-    List <CartItemResponse> items
+    List <CartItemResponseDTO> items
 ) {
 }

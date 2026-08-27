@@ -1,4 +1,5 @@
 package project.fooddelivery.api.feature.cart;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -6,13 +7,13 @@ import java.math.BigDecimal;
 import java.util.UUID;
 import jakarta.persistence.*;
 
-
 @Getter
 @Setter
 @Entity
 @Table(name = "cart_item")
 public class CartItem {
     @Id
+
     @Column(name = "cart_item_id")
     private UUID cartItemId;
 

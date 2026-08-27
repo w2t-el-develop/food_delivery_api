@@ -1,6 +1,6 @@
 package project.fooddelivery.api.feature.cart;
 
-public record CartIdResponse(
+public record CartIdResponseDTO(
         String id,
         String customerId
        
