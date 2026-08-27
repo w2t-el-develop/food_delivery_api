@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/cart")
@@ -14,9 +15,12 @@ public class CartController {
     private final CartService cartService;
     private final CartMapper cartMapper;
 
-    @PostMapping("/add")
-    public ResponseEntity<CartItemResponse> addToCart(@Valid @RequestBody AddToCartRequest request) {
-        CartItem savedItem = cartService.addToCart(request);
+    @PostMapping("/{customerId}/add")
+    public ResponseEntity<CartItemResponse> addToCart(
+            @PathVariable UUID customerId,
+            @Valid @RequestBody AddToCartRequest request) {
+
+        CartItem savedItem = cartService.addToCart(customerId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(cartMapper.toCartItemResponse(savedItem));
     }
 }
