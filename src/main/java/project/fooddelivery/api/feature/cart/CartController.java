@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("cart")
@@ -17,16 +19,8 @@ public class CartController {
     private final CartService cartService;
 
     @GetMapping("customer/{customerId}")
-    public ResponseEntity<CartIdResponseDTO> getCartByCustomerId(@PathVariable String customerId) {
-        return new ResponseEntity<>(cartService.getCartByCustomerId(customerId) , HttpStatus.OK);
+    public ResponseEntity<CartWithItemsResponseDTO> getCartByCustomerId(@PathVariable UUID customerId) {
+        return new ResponseEntity<>(cartService.getCartByCustomerId(customerId), HttpStatus.OK);
     }
-
-    @GetMapping("cart-id/{cartId}")
-    public ResponseEntity<CartWithItemsResponseDTO> getCart(@PathVariable String cartId) {
-        return new ResponseEntity<>(cartService.getCartByCartId(cartId), HttpStatus.OK);
-    }
-
-
-
 
 }

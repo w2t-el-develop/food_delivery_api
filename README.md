@@ -405,7 +405,7 @@ FUNCTION deleteItemFromCart(cartId, itemId):
 
 view cart
 -get signature /api/v1/cart
--input cart id
+-input customer id
 -output status code [200] cart info
 
 delete item
