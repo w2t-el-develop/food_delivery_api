@@ -2,14 +2,18 @@
   "info": {
     "_postman_id": "b6f2a9d1-4c3e-4e9a-9b7a-food-delivery-cart",
     "name": "Food Delivery API - Cart",
-    "description": "Tests for the cart feature endpoint (GET /cart/customer/{customerId}). Run the app locally on port 8080 (Postgres via the java_eats_postgres docker container) before running this collection.",
+    "description": "Tests for the cart feature endpoints (GET /cart/customer/{customerId}, DELETE /cart/{cartId}/items/{itemId}). Run the app locally on port 8080 (Postgres via the java_eats_postgres docker container) before running this collection. Note: the 'Delete Cart Item' folder is destructive - it removes one real item from the fixture cart on each run.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     { "key": "baseUrl", "value": "http://localhost:8080", "type": "string" },
     { "key": "customerId", "value": "01a03495-11df-726b-b30e-b26603fcdfd3", "type": "string", "description": "A real customer_id that owns a non-empty cart" },
     { "key": "unknownId", "value": "00000000-0000-0000-0000-000000000000", "type": "string", "description": "A well-formed UUID that does not exist in the DB" },
-    { "key": "invalidId", "value": "not-a-uuid", "type": "string", "description": "A malformed UUID string" }
+    { "key": "invalidId", "value": "not-a-uuid", "type": "string", "description": "A malformed UUID string" },
+    { "key": "cartId", "value": "", "type": "string", "description": "Populated at runtime by the Delete Cart Item setup request" },
+    { "key": "itemIdToDelete", "value": "", "type": "string", "description": "Populated at runtime by the Delete Cart Item setup request" },
+    { "key": "itemPriceToDelete", "value": "", "type": "string", "description": "Populated at runtime by the Delete Cart Item setup request" },
+    { "key": "cartTotalBeforeDelete", "value": "", "type": "string", "description": "Populated at runtime by the Delete Cart Item setup request" }
   ],
   "item": [
     {
@@ -103,6 +107,181 @@
                 "type": "text/javascript",
                 "exec": [
                   "// Documents current behavior: an unhandled IllegalArgumentException falls through",
+                  "// to the generic exception handler and returns 500 instead of a 400 Bad Request.",
+                  "pm.test('Status code is currently 500 (should ideally be 400)', function () {",
+                  "    pm.response.to.have.status(500);",
+                  "});",
+                  "",
+                  "pm.test('Error body shape', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.status).to.eql(500);",
+                  "    pm.expect(json.error).to.eql('INTERNAL_SERVER_ERROR');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Delete Cart Item",
+      "item": [
+        {
+          "name": "Setup - fetch a real cart id and item id to delete",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/cart/customer/{{customerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["cart", "customer", "{{customerId}}"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.items).to.be.an('array').that.is.not.empty;",
+                  "",
+                  "const itemToDelete = json.items[0];",
+                  "pm.collectionVariables.set('cartId', json.id);",
+                  "pm.collectionVariables.set('itemIdToDelete', itemToDelete.id);",
+                  "pm.collectionVariables.set('itemPriceToDelete', itemToDelete.price);",
+                  "pm.collectionVariables.set('cartTotalBeforeDelete', json.totalPrice);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "200 - delete existing item returns updated total price",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/cart/{{cartId}}/items/{{itemIdToDelete}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["cart", "{{cartId}}", "items", "{{itemIdToDelete}}"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response returns the recalculated total price', function () {",
+                  "    const json = pm.response.json();",
+                  "    const before = Number(pm.collectionVariables.get('cartTotalBeforeDelete'));",
+                  "    const removed = Number(pm.collectionVariables.get('itemPriceToDelete'));",
+                  "    const expectedTotal = Number((before - removed).toFixed(2));",
+                  "    pm.expect(json).to.have.property('totalPrice');",
+                  "    pm.expect(json.totalPrice).to.eql(expectedTotal);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "404 - unknown item in existing cart",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/cart/{{cartId}}/items/{{unknownId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["cart", "{{cartId}}", "items", "{{unknownId}}"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Error body shape', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.status).to.eql(404);",
+                  "    pm.expect(json.error).to.eql('NOT_FOUND');",
+                  "    pm.expect(json.message).to.include(pm.collectionVariables.get('cartId'));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "404 - unknown cart",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/cart/{{unknownId}}/items/{{unknownId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["cart", "{{unknownId}}", "items", "{{unknownId}}"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Error body shape', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.status).to.eql(404);",
+                  "    pm.expect(json.error).to.eql('NOT_FOUND');",
+                  "    pm.expect(json.message).to.include(pm.collectionVariables.get('unknownId'));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "500 - malformed cart id (known gap: should be 400)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/cart/{{invalidId}}/items/{{unknownId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["cart", "{{invalidId}}", "items", "{{unknownId}}"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Documents current behavior: an unhandled type-mismatch exception falls through",
                   "// to the generic exception handler and returns 500 instead of a 400 Bad Request.",
                   "pm.test('Status code is currently 500 (should ideally be 400)', function () {",
                   "    pm.response.to.have.status(500);",
