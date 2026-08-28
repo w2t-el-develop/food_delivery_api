@@ -20,11 +20,11 @@ class CartService {
         return cartRepository.findByCustomerId(customerId)
                 .map(cart -> {
                     if (cart.getCartItems().isEmpty()) {
-                        throw new CartEmptyException(cart.getCartId(), customerId);
+                        throw new CartEmptyException("Cart for customer: " + customerId + " is empty.");
                     }
                     return cartMapper.toCartWithItemsResponse(cart);
                 })
-                .orElseThrow(() -> new CartNotFoundException(customerId));
+                .orElseThrow(() -> new CartNotFoundException("Cart not found for customer: " + customerId));
     }
 
 }
