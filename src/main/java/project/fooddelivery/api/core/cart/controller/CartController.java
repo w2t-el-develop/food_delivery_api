@@ -62,4 +62,13 @@ public class CartController {
     }
 
 
+    @DeleteMapping
+    public ResponseEntity<Void> clearCart(
+            @PathVariable UUID customerId) {
+
+        cartService.clearCart(customerId);
+
+        return ResponseEntity.noContent().build();
+    }
+
 }

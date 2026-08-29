@@ -155,4 +155,9 @@ public class CartService {
             );
         }
     }
+
+    @Transactional
+    public void clearCart(UUID customerId) {
+        cartItemRepository.deleteAllByCustomerId(customerId);
+    }
 }
