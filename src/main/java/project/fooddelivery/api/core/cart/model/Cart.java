@@ -19,6 +19,7 @@ public class Cart {
 
     @Id
     @ColumnDefault("uuidv7()")
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "cart_id", nullable = false, updatable = false)
     private UUID cartId;
 
