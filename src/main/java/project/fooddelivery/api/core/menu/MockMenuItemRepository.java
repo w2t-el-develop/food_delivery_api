@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-class MockMenuItemRepository {
+public class MockMenuItemRepository {
 
     private final Map<UUID, MockMenuItem> menuItems = Map.of(
             UUID.fromString("0190f001-1111-7000-8000-000000000001"),
@@ -57,10 +57,3 @@ class MockMenuItemRepository {
 
 }
 
-record MockMenuItem(
-        UUID menuItemId,
-        String name,
-        Double price,
-        boolean available
-) {
-}
