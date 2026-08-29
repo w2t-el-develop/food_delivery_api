@@ -1,4 +1,4 @@
-package project.fooddelivery.api.feature.cart;
+package project.fooddelivery.api.core.cart.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -21,7 +21,9 @@ public class Cart {
     @ColumnDefault("uuidv7()")
     @Column(name = "cart_id", nullable = false, updatable = false)
     private UUID cartId;
+
     @Column(name = "customer_id")
-    private String customerId;
+    private UUID customerId;
+
 
 }

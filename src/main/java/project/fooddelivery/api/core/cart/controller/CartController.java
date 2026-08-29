@@ -1,16 +1,11 @@
-package project.fooddelivery.api.feature.cart;
+package project.fooddelivery.api.core.cart.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RequiredArgsConstructor
 @RestController
-@RequestMapping("cart")
+@RequiredArgsConstructor
+@RequestMapping("customers/{customerId}/cart/items")
 public class CartController {
-
-    private final CartService cartService;
-
-
-
 }
