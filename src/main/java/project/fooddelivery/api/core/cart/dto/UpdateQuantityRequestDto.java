@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.Builder;
 
 @Builder
-record UpdateQuantityRequestDto(
+public record UpdateQuantityRequestDto(
         @NotNull(message = "Quantity is required")
         @Positive(message = "Quantity must be greater than zero")
         Integer quantity) {

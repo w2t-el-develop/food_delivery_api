@@ -5,9 +5,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import project.fooddelivery.api.core.cart.dto.AddToCartRequestDto;
-import project.fooddelivery.api.core.cart.dto.CartItemResponseDto;
-import project.fooddelivery.api.core.cart.dto.CartResponseDto;
+import project.fooddelivery.api.core.cart.dto.*;
 import project.fooddelivery.api.core.cart.mapper.CartMapper;
 import project.fooddelivery.api.core.cart.model.Cart;
 import project.fooddelivery.api.core.cart.model.CartItem;
@@ -79,6 +77,18 @@ public class CartService {
 
     }
 
+    @Transactional
+    public CartItemResponseDto UpdateCartItemQuantity(UUID customerId, UUID cartItemId, UpdateQuantityRequestDto updateQuantityRequestDto) {
+        CartItem cartItem = getCartItem(customerId, cartItemId)
+                .orElseThrow(() -> new EntityNotFoundException("CartItem not found"));
+        cartItem.setCartItemQuantity(updateQuantityRequestDto.quantity());
+        return cartMapper.toResponseDto(cartItem);
+    }
+
+    Optional<CartItem> getCartItem(UUID customerId, UUID cartItemId) {
+        return cartItemRepository.getCartItemByCartItemIdAndCart_customerId(cartItemId, customerId);
+    }
+
     private Cart createCart(UUID customerId) {
         Cart cart = new Cart();
         cart.setCustomerId(customerId);
@@ -107,5 +117,42 @@ public class CartService {
                 cartItem.getCartItemQuantity() + quantityToAdd;
 
         cartItem.setCartItemQuantity(newQuantity);
+    }
+
+
+    @Transactional
+    public void removeItem(
+            UUID customerId,
+            UUID cartItemId) {
+
+        int deletedRows =
+                cartItemRepository.deleteByCartItemIdAndCustomerId(
+                        cartItemId,
+                        customerId
+                );
+
+        if (deletedRows == 0) {
+            throw new EntityNotFoundException(
+                    "Cart item not found"
+            );
+        }
+    }
+
+    @Transactional
+    public void batchRemoveItems(
+            UUID customerId,
+            RemoveCartItemRequestDto removeCartItemRequestDto) {
+
+        int deletedRows =
+                cartItemRepository.deleteByCartItemsIdAndCustomerId(
+                        customerId,
+                        removeCartItemRequestDto.cartItemIds()
+                );
+
+        if (deletedRows == 0) {
+            throw new EntityNotFoundException(
+                    "Cart item not found"
+            );
+        }
     }
 }
