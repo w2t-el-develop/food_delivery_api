@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.fooddelivery.api.core.cart.dto.*;
+import project.fooddelivery.api.core.cart.mapper.CartItemMapper;
+import project.fooddelivery.api.core.cart.model.CartItem;
 import project.fooddelivery.api.core.cart.service.CartService;
 
 import java.util.UUID;
@@ -13,62 +15,30 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("customers/{customerId}/cart/items")
+@RequestMapping("carts/customers/{customerId}")
 public class CartController {
 
     private final CartService cartService;
+    private final CartItemMapper cartItemMapper;
 
     @GetMapping
     ResponseEntity<CartResponseDto> viewCart(@PathVariable UUID customerId) {
-        CartResponseDto response = cartService.viewCart(customerId);
-        return ResponseEntity.ok(response);
+        CartResponseDto cartResponseDto = cartService.viewCart(customerId);
+        return ResponseEntity.ok(cartResponseDto);
     }
 
     @PostMapping
     ResponseEntity<CartItemResponseDto> addToCart(@PathVariable UUID customerId,
-                                                  @Valid @RequestBody AddToCartRequestDto addToCartRequestDto) {
-        CartItemResponseDto response = cartService.addToCart(customerId, addToCartRequestDto);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
-
-    @PatchMapping("{cartItemId}")
-    ResponseEntity<CartItemResponseDto> updateCartItemQuantity(@PathVariable UUID customerId,
-                                                               @PathVariable UUID cartItemId,
-                                                               @Valid @RequestBody UpdateQuantityRequestDto updateQuantityRequestDto) {
-        CartItemResponseDto response = cartService.UpdateCartItemQuantity(customerId, cartItemId, updateQuantityRequestDto);
-        return ResponseEntity.ok(response);
-    }
-
-    @DeleteMapping("{cartItemId}")
-    public ResponseEntity<Void> removeItem(
-            @PathVariable UUID customerId,
-            @PathVariable UUID cartItemId) {
-
-        cartService.removeItem(
-                customerId,
-                cartItemId
-        );
-
-        return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("batch-delete")
-    public ResponseEntity<Void> batchRemoveItems(
-            @PathVariable UUID customerId,
-            @Valid @RequestBody RemoveCartItemRequestDto removeCartItemRequestDto) {
-
-        cartService.batchRemoveItems(customerId, removeCartItemRequestDto);
-
-        return ResponseEntity.noContent().build();
+                                       @Valid @RequestBody AddToCartRequestDto addToCartRequestDto) {
+        CartItem cartItem = cartService.addToCart(customerId, addToCartRequestDto);
+        return new ResponseEntity<>(cartItemMapper.toResponseDto(cartItem), HttpStatus.CREATED);
     }
 
 
     @DeleteMapping
     public ResponseEntity<Void> clearCart(
             @PathVariable UUID customerId) {
-
         cartService.clearCart(customerId);
-
         return ResponseEntity.noContent().build();
     }
 

@@ -7,4 +7,5 @@ public record CartItemResponseDto(
         UUID menuItemId,
         Integer cartItemQuantity,
         Double cartItemPrice) {
+
 }
