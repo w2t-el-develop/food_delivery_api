@@ -1,4 +1,4 @@
-package project.fooddelivery.api.core.cart.model;
+package project.fooddelivery.api.core.cart.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -10,11 +10,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "cart",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uq_cart_item", columnNames = {"cart_id", "menu_item_id"})
-        }
-)
+@Table(name = "cart")
 public class Cart {
 
     @Id
@@ -23,7 +19,7 @@ public class Cart {
     @Column(name = "cart_id", nullable = false, updatable = false)
     private UUID cartId;
 
-    @Column(name = "customer_id")
+    @Column(name = "customer_id", unique = true, nullable = false, updatable = false)
     private UUID customerId;
 
 

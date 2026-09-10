@@ -1,14 +1,13 @@
 package project.fooddelivery.api.core.cart.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import project.fooddelivery.api.core.cart.dto.CartItemResponseDto;
 import project.fooddelivery.api.core.cart.dto.RemoveCartItemRequestDto;
 import project.fooddelivery.api.core.cart.dto.UpdateQuantityRequestDto;
-import project.fooddelivery.api.core.cart.model.Cart;
-import project.fooddelivery.api.core.cart.model.CartItem;
+import project.fooddelivery.api.core.cart.entity.Cart;
+import project.fooddelivery.api.core.cart.entity.CartItem;
 import project.fooddelivery.api.core.cart.repository.CartItemRepository;
 import project.fooddelivery.api.core.menu.MockMenuItem;
 import project.fooddelivery.api.utility.exceptionhandling.ResourceNotFoundException;

@@ -8,7 +8,7 @@ import project.fooddelivery.api.core.cart.dto.CartItemResponseDto;
 import project.fooddelivery.api.core.cart.dto.RemoveCartItemRequestDto;
 import project.fooddelivery.api.core.cart.dto.UpdateQuantityRequestDto;
 import project.fooddelivery.api.core.cart.mapper.CartItemMapper;
-import project.fooddelivery.api.core.cart.model.CartItem;
+import project.fooddelivery.api.core.cart.entity.CartItem;
 import project.fooddelivery.api.core.cart.service.CartItemService;
 
 import java.util.UUID;

@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import project.fooddelivery.api.core.cart.dto.CartItemResponseDto;
-import project.fooddelivery.api.core.cart.model.CartItem;
+import project.fooddelivery.api.core.cart.entity.CartItem;
 
 import java.util.*;
 
@@ -34,8 +34,8 @@ public interface CartItemRepository extends JpaRepository<CartItem, UUID> {
                 AND ci.cartItemId IN :cartItemIds
             """)
     int deleteByCartItemsIdAndCustomerId(
-            @Param("cartItemId") UUID cartItemId,
-            @Param("customerIds") Collection<UUID> customerIds
+            @Param("customerId") UUID customerId,
+            @Param("cartItemIds") Collection<UUID> cartItemIds
     );
 
     @Modifying

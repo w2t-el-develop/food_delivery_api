@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.fooddelivery.api.core.cart.dto.*;
 import project.fooddelivery.api.core.cart.mapper.CartItemMapper;
-import project.fooddelivery.api.core.cart.model.CartItem;
+import project.fooddelivery.api.core.cart.entity.CartItem;
 import project.fooddelivery.api.core.cart.service.CartService;
 
 import java.util.UUID;
