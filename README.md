@@ -1218,7 +1218,7 @@ sequenceDiagram
 
 ## psudocode 
 
-```mermaid
+```test
   FUNCTION address addAddress(customerId, addressRequestDto){
     address = repo.save(customerId, addressRequestDto);
     return address;
@@ -1227,7 +1227,7 @@ sequenceDiagram
 
 ## request Body 
 
-```mermaid
+```test
 path:api/customer/{customerId}/address
 input:addressRequestDto
 outPut:201 CREATED, 404 NOT found
@@ -1270,7 +1270,7 @@ sequenceDiagram
 
 ## psudocode  
 
-```mermaid
+```test
 FUNCTION deleteAddress(customerId, addressId, address){
   repo.deleteAddress(customerId, addressId, address);
 }
@@ -1278,7 +1278,7 @@ FUNCTION deleteAddress(customerId, addressId, address){
 ```
 
 ## request Body 
-```mermaid
+```test
 path:api/customer/{customerId}/address
 input:addressId 
 outPut:200 ok, 404 NOT found
@@ -1323,7 +1323,7 @@ sequenceDiagram
 
 ## psudocode  
 
-```mermaid
+```text
 FUNCTION Address updateAddress(customerId, addressId, address){
   address = repo.deleteAddress(customerId, addressId, address);
   return address
@@ -1332,7 +1332,7 @@ FUNCTION Address updateAddress(customerId, addressId, address){
 ```
 
 ## request Body 
-```mermaid
+```text
 path:api/customer/{customerId}/address
 input:addressId, addressRequestDto
 outPut:200 ok, 404 NOT found
