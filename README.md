@@ -896,8 +896,75 @@ FUNCTION clearCart(customerId):
 
     RETURN no content
 ```
+# 7-add address 
 
----
+## sequence  
+
+```mermaid
+sequenceDiagram
+    participant OS as order service
+    participant AS as address service
+    participant AR as address repository
+
+    OS->>AS: addAddress(address)
+    AS->>AR: sava(address)
+
+    OS->>AS: getAddressByCustomerID(customerID)
+    AS->>AR: getByCustomerId
+    AR-->>AS: 
+    AS-->>OS: 
+```
+
+## ERD Diagram
+
+```mermaid
+erDiagram
+    CUSTOMER ||--o{ ADDRESS : has
+    CUSTOMER ||--o{ ORDER : places
+    ADDRESS ||--|| ORDER : "used in"
+
+    CUSTOMER {
+        int customerId
+        int userId
+    }
+    ADDRESS {
+        int address_id
+        int customerId
+        string city
+        string street
+        string phoneNumber
+        string buildingNumber
+    }
+    ORDER {
+        int order_id
+        int customerId
+        int address_id
+        string order_status
+        int order_item_id
+    }
+```
+
+## flowchart 
+
+```mermaid
+flowchart TD
+    Start((start)) --> AddAddress[add address]
+    AddAddress --> CreateOrder[create order]
+    CreateOrder --> ShowOrder["show order<br/>when confirm order &<br/>can update address"]
+    ShowOrder -->|if confirm order is true| SaveDB[save in DB]
+```
+
+## psudocode 
+
+```mermaid
+FUNCTION addAddress(addressRequestDto){
+    addressService.save(addressRequestDto);
+    return ResponseEntity.ok();
+}
+```
+
+--- 
+
 
 # Validation and Error Handling
 
