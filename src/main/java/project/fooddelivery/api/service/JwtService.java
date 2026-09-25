@@ -22,12 +22,12 @@ import io.jsonwebtoken.security.Keys;
 public class JwtService {
     private String secretKey;
 
-    public String generateToken(String username, String userId) {
+    public String generateToken(String phoneNumber, String userId) {
       Map<String, Object> claims = new HashMap<>();
       claims.put("user_id", userId);
       return Jwts.builder()
               .claims(claims)
-              .subject(username)
+              .subject(phoneNumber)
               .issuedAt(new Date(System.currentTimeMillis()))
               .expiration(new Date(System.currentTimeMillis() + 60 * 60 * 1000))
               .signWith(getKey())
