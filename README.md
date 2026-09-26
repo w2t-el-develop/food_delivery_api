@@ -1175,7 +1175,168 @@ cartService.clearCart(customerId);
 
 Only the source of `customerId` changes.
 
----
+--- 
+
+# address managemet 
+
+# 1-add address 
+
+## flowchart 
+
+```mermaid
+%% Address Add - Flowchart
+flowchart TD
+    Start([start]) --> AddAddress[add address]
+    AddAddress --> CustExist{Is customer exist ?}
+    CustExist -->|no| ThrowNF[throw ResourseNotFound]
+    CustExist -->|yes| FillDetails[fill address details]
+    FillDetails --> SaveDB[save in DB]
+```
+
+## sequence 
+
+```mermaid
+%% Add Address - Sequence Diagram
+sequenceDiagram
+    actor ui
+    participant addressController as address controller
+    participant addressService as address service
+    participant repository
+
+    ui->>addressController: api/customer/{customerId}/address
+    addressController->>addressService: addAddress(customerId, address)
+    addressService->>repository: save(address)
+
+    alt customer not exist
+        addressService-->>addressController: resourse Not Found
+        addressController-->>ui: 404 not Found
+    else success
+        addressService-->>addressController: return address
+        addressController-->>ui: 201 Created
+    end
+```
+
+## psudocode 
+
+```test
+  FUNCTION address addAddress(customerId, addressRequestDto){
+    address = repo.save(customerId, addressRequestDto);
+    return address;
+}
+```
+
+## request Body 
+
+```test
+path:api/customer/{customerId}/address
+input:addressRequestDto
+outPut:201 CREATED, 404 NOT found
+```
+
+# 2-delete Address 
+
+## flowChart 
+
+```mermaid
+%% Address Delete - Flowchart
+flowchart TD
+    Start([start]) --> AddrExist{Is address exist by address_id and customer_id}
+    AddrExist -->|no| ThrowNF[throw ResourseNotFound]
+    AddrExist -->|YES| DeleteDB[delete address in DB]
+```
+
+## sequence diagram 
+
+```mermaid
+%% Delete Address - Sequence Diagram
+sequenceDiagram
+    actor ui
+    participant addressController as address controller
+    participant addressService as address service
+    participant repository
+
+    ui->>addressController: api/customer/{customerId}/address/{addressId}
+    addressController->>addressService: deleteAddress(customerId, addressId, address)
+    addressService->>repository: deleteAddress(customerId, addressId, address)
+
+    alt customer not exist or address not exist
+        addressService-->>addressController: resourse Not Found
+        addressController-->>ui: 404 not Found
+    else success
+        addressService-->>addressController: return address
+        addressController-->>ui: 200 ok
+    end
+```
+
+## psudocode  
+
+```test
+FUNCTION deleteAddress(customerId, addressId, address){
+  repo.deleteAddress(customerId, addressId, address);
+}
+
+```
+
+## request Body 
+```test
+path:api/customer/{customerId}/address
+input:addressId 
+outPut:200 ok, 404 NOT found
+```
+
+# 3-update address
+
+##flowchart
+
+```mermaid
+%% Address Update - Flowchart
+flowchart TD
+    Start([start]) --> AddrExist{Is address exist by address_id and customer_id}
+    AddrExist -->|no| ThrowNF[throw ResourseNotFound]
+    AddrExist -->|yes| UpdateDetails[update address details]
+    UpdateDetails --> UpdateDB[update in DB]
+```
+
+## sequence
+
+
+```mermaid
+%% Update Address - Sequence Diagram
+sequenceDiagram
+    actor ui
+    participant addressController as address controller
+    participant addressService as address service
+    participant repository
+
+    ui->>addressController: api/customer/{customerId}/address/{addressId}
+    addressController->>addressService: updateAddress(customerId, addressId, address)
+    addressService->>repository: updateAddress(customerId, addressId, address)
+
+    alt customer not exist or address not exist
+        addressService-->>addressController: resourse Not Found
+        addressController-->>ui: 404 not Found
+    else success
+        addressService-->>addressController: return address
+        addressController-->>ui: 200 ok
+    end
+```
+
+## psudocode  
+
+```text
+FUNCTION Address updateAddress(customerId, addressId, address){
+  address = repo.deleteAddress(customerId, addressId, address);
+  return address
+}
+
+```
+
+## request Body 
+```text
+path:api/customer/{customerId}/address
+input:addressId, addressRequestDto
+outPut:200 ok, 404 NOT found
+```
 
 # Summary
 
