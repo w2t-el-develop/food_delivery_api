@@ -7,20 +7,27 @@ sequenceDiagram
     participant AuthService
     participant Database
 
-    Client->>AuthController: POST /api/v1/auth/register ( username, password ,confirm password,phone Number)
-    
+    Client->>AuthController: POST /api/v1/auth/register (fullName, phone, password, confirmPassword)
     AuthController->>AuthService: registerUser(payload)
     
     rect 
         Note over AuthService, Database: Validation & Database Checks
-        AuthService->>AuthService: Validate input format ( username, password,confirm password,phone Number)
+        AuthService->>AuthService: Validate input format (fullName, phone, password, confirmPassword)
         alt Invalid Format
-            AuthService-->>Client: 400 Bad Request
+            AuthService-->>AuthController: Throw ValidationException (400)
+            AuthController-->>Client: 400 Bad Request
         end
 
-        AuthService->>Database: Check for existing email or username
+        AuthService->>AuthService: Verify password and confirmPassword match
+        alt Passwords Mismatch
+            AuthService-->>AuthController: Throw ValidationException (400)
+            AuthController-->>Client: 400 Bad Request
+        end
+
+        AuthService->>Database: Check for existing phone
         alt User Exists
-            AuthService-->>Client: 409 Conflict
+            AuthService-->>AuthController: Throw ConflictException (409)
+            AuthController-->>Client: 409 Conflict
         end
     end
 
@@ -29,10 +36,12 @@ sequenceDiagram
         AuthService->>AuthService: Hash password using Argon2
         AuthService->>Database: Insert new user record
         alt Database Insert Fails
-            AuthService-->>Client: 500 Internal Server Error
+            AuthService-->>AuthController: Throw InternalErrorException (500)
+            AuthController-->>Client: 500 Internal Server Error
         else Success
             AuthService->>AuthService: Generate JWT
-            AuthService-->>Client: 201 Created (JWT + User Profile)
+            AuthService-->>AuthController: Return User DTO + JWT
+            AuthController-->>Client: 201 Created (JWT + User Profile)
         end
     end
 
@@ -41,34 +50,33 @@ sequenceDiagram
 
 # flowchart
 ```mermaid
- flowchart TD
+flowchart TD
     Start([Start])
     Start --> ReceiveRequest["POST /api/register"]
     ReceiveRequest --> ParseBody["Parse request body"]
-    ParseBody --> ValidateFormat["Validate input format<br/>Email, username, password,full name,phone required fields"]
+    ParseBody --> ValidateFormat["Validate input format<br/>fullName, phone, password, confirmPassword required"]
     
-   
+    ValidateFormat --> CheckInputValid{Input valid?}
+    CheckInputValid -->|No| Error400Format["400 Bad Request<br/>Missing or invalid fields"]
     
-    ValidateFormat --> CheckUsername{input valid?}
-    CheckUsername -->|No| Error400
+    CheckInputValid -->|Yes| CheckPasswords["Check if password == confirmPassword"]
+    CheckPasswords --> PasswordsMatch{Match?}
+    PasswordsMatch -->|No| Error400Match["400 Bad Request<br/>Passwords do not match"]
     
-    CheckUsername -->|Yes| CheckEmailUnique["Check email uniqueness<br/>Query database by email"]
-    CheckEmailUnique --> EmailExists{Email exists?}
-    EmailExists -->|Yes| Error409Email["409 Conflict<br/>Email already registered"]
-    EmailExists -->|No| CheckUsernameUnique["Check username uniqueness<br/>Query database by username"]
+    PasswordsMatch -->|Yes| CheckPhoneUnique["Check phone uniqueness<br/>Query database by phone"]
+    CheckPhoneUnique --> PhoneExists{Phone exists?}
+    PhoneExists -->|Yes| Error409Phone["409 Conflict<br/>Phone number already registered"]
     
-    CheckUsernameUnique --> UsernameExists{Username exists?}
-    UsernameExists -->|Yes| Error409Username["409 Conflict<br/>Username already taken"]
-    UsernameExists -->|No| HashPassword["Hash password<br/>bcrypt or similar"]
+    PhoneExists -->|No| HashPassword["Hash password<br/>Argon2 or bcrypt"]
     
     HashPassword --> InsertDB["Insert customer record<br/>Save to database with hashed password"]
     InsertDB --> CheckInsert{Insert success?}
     CheckInsert -->|No| Error500["500 Server Error<br/>Database operation failed"]
     CheckInsert -->|Yes| Success["201 Created<br/>Return customer object + JWT"]
     
-    Error400 --> End([End])
-    Error409Email --> End
-    Error409Username --> End
+    Error400Format --> End([End])
+    Error400Match --> End
+    Error409Phone --> End
     Error500 --> End
     Success --> End
     
@@ -85,45 +93,37 @@ FUNCTION handleUserRegistration(httpRequest):
         // STEP 1: RECEIVE & PARSE REQUEST
         // ====================================================
         payload = httpRequest.body
-        email = payload.email
-        username = payload.username
-        password = payload.password
         fullName = payload.fullName
         phone = payload.phone
+        password = payload.password
+        confirmPassword = payload.confirmPassword
 
         // ====================================================
-        // STEP 2: FORMAT VALIDATION (Client Error 400)
+        // STEP 2: FORMAT VALIDATION & PASSWORD MATCH (Client Error 400)
         // ====================================================
-        // Check required fields, email format, and username constraints
-        IF email IS NULL OR username IS NULL OR password IS NULL OR fullName IS NULL OR phone IS NULL:
+        // Check required fields
+        IF fullName IS NULL OR phone IS NULL OR password IS NULL OR confirmPassword IS NULL:
             RETURN Response(status = 400, body = { "error": "Missing required fields" })
 
-        IF NOT isValidEmailFormat(email):
-            RETURN Response(status = 400, body = { "error": "Invalid email address format" })
-
-        IF LENGTH(username) < 3 OR LENGTH(username) > 30 OR NOT isAlphanumericWithUnderscore(username):
-            RETURN Response(status = 400, body = { "error": "Username must be 3-30 characters, no spaces, letters/numbers/underscores only" })
-
-        IF LENGTH(password) < 8:
-            RETURN Response(status = 400, body = { "error": "Password must be at least 8 characters long" })
-        
         IF fullName IS EMPTY:
-            RETURN Response(status = 400, body = { "error": "full name is required" })
+            RETURN Response(status = 400, body = { "error": "Full name is required" })
 
         IF NOT matchesRegex(phone, "^\\+?[0-9]{7,15}$"):
             RETURN Response(status = 400, body = { "error": "Phone must contain 7-15 digits and may start with +" })
 
+        IF LENGTH(password) < 8:
+            RETURN Response(status = 400, body = { "error": "Password must be at least 8 characters long" })
+            
+        IF password != confirmPassword:
+            RETURN Response(status = 400, body = { "error": "Passwords do not match" })
 
         // ====================================================
         // STEP 3: DATABASE UNIQUENESS CHECK (Client Error 409)
         // ====================================================
-        existingUser = Database.findUserByEmailOrUsername(email, username)
+        existingUser = Database.findUserByPhone(phone)
 
         IF existingUser EXISTS:
-            IF existingUser.email == email:
-                RETURN Response(status = 409, body = { "error": "Email already registered" })
-            IF existingUser.username == username:
-                RETURN Response(status = 409, body = { "error": "Username already taken" })
+            RETURN Response(status = 409, body = { "error": "Phone number already registered" })
 
 
         // ====================================================
@@ -137,8 +137,8 @@ FUNCTION handleUserRegistration(httpRequest):
         // ====================================================
         TRY:
             newUser = Database.insertUser({
-                "email": email,
-                "username": username,
+                "fullName": fullName,
+                "phone": phone,
                 "passwordHash": hashedPassword,
                 "createdAt": getCurrentTimestamp()
             })
@@ -151,14 +151,13 @@ FUNCTION handleUserRegistration(httpRequest):
         // ====================================================
         jwtToken = JWT.generateToken({
             "userId": newUser.id,
-            "email": newUser.email
+            "phone": newUser.phone
         })
 
         userProfile = {
             "id": newUser.id,
-            "username": newUser.username,
-            "email": newUser.email,
-            
+            "fullName": newUser.fullName,
+            "phone": newUser.phone
         }
 
         RETURN Response(
@@ -184,9 +183,9 @@ Content-Type: application/json
 
 ```json
 {
-    "email": "sam@example.com",
-    "username": "sam_delivery",
+   
     "password": "SecurePass123!",
+    "confirmPassword": "SecurePass123!",
     "fullName": "Sam Carter",
     "phone": "+14155552671"
 }
@@ -202,7 +201,7 @@ Content-Type: application/json
 {
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
     
-    }
+    
 }
 ```
 
@@ -216,23 +215,23 @@ Content-Type: application/json
 }
 ```
 
-#### Case 3: Email already registered
+#### Case 3: Phone already registered
 
 **Status:** `409 Conflict`
 
 ```json
 {
-    "error": "Email already registered"
+    "error": "Phone already registered"
 }
 ```
 
-#### Case 4: Username already taken
+#### Case 4: password not match confirm password
 
 **Status:** `409 Conflict`
 
 ```json
 {
-    "error": "Username already taken"
+    "error": "Passwords do not match"
 }
 ```
 
