@@ -18,30 +18,35 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import lombok.RequiredArgsConstructor;
-
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
     private final UserDetailsService userDetailsService;
-    private final JwtFilter jwtFilter;
+    private final JwtService jwtService;
+    private final MyUserDetailsService myUserDetailsService;
+
+    public SecurityConfig(UserDetailsService userDetailsService, JwtService jwtService, MyUserDetailsService myUserDetailsService) {
+        this.userDetailsService = userDetailsService;
+        this.jwtService = jwtService;
+        this.myUserDetailsService = myUserDetailsService;
+    }
 
     @Bean
-     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    public JwtFilter jwtFilter() {
+        return new JwtFilter(jwtService, myUserDetailsService);
+    }
+
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, JwtFilter jwtFilter) throws Exception {
         httpSecurity.csrf(customizer -> customizer.disable());
-        httpSecurity.sessionManagement(session -> session
-        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-    );
-    httpSecurity.exceptionHandling(ex -> ex
-       .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))); 
+        httpSecurity.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        httpSecurity.exceptionHandling(ex -> ex.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
         httpSecurity.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                .requestMatchers("/user/register", "/user/login").permitAll()
+            .requestMatchers("/auth/register-customer", "/auth/register", "/auth/login", "/user/register", "/user/login", "/error").permitAll()
                 .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
-
     }
 
     @Bean
@@ -50,15 +55,14 @@ public class SecurityConfig {
     }
 
     @Bean
-     AuthenticationProvider authenticationProvider() {
+    AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
-
     }
-    @Bean
-    AuthenticationManager authenticationManager (AuthenticationConfiguration config) throws Exception{
-        return config.getAuthenticationManager();
 
+    @Bean
+    AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 }

@@ -1,0 +1,85 @@
+{
+  "info": {
+    "_postman_id": "3e2f865d-671b-49c8-a9ea-4cc217c6ef10",
+    "name": "Food Delivery API",
+    "description": "Postman collection for customer registration.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api/v1"
+    },
+    {
+      "key": "phone",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Register Customer",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const suffix = Date.now().toString().slice(-10);",
+              "pm.collectionVariables.set('phone', '+1555' + suffix);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Returns HTTP 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const body = pm.response.json();",
+              "pm.test('Returns a JWT token', function () {",
+              "    pm.expect(body.token).to.be.a('string').and.not.empty;",
+              "});",
+              "",
+              "if (typeof body.token === 'string') {",
+              "    const payload = body.token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');",
+              "    const paddedPayload = payload.padEnd(Math.ceil(payload.length / 4) * 4, '=');",
+              "    const claims = JSON.parse(atob(paddedPayload));",
+              "    pm.test('JWT contains the registered phone and both IDs', function () {",
+              "        pm.expect(claims.sub).to.eql(pm.collectionVariables.get('phone'));",
+              "        pm.expect(claims.user_id).to.be.a('string').and.not.empty;",
+              "        pm.expect(claims.customer_id).to.be.a('string').and.not.empty;",
+              "    });",
+              "    pm.test('JWT identifies the customer role', function () {",
+              "        pm.expect(claims.user_type).to.eql('CUSTOMER');",
+              "    });",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fullName\": \"Postman Test User\",\n  \"phone\": \"{{phone}}\",\n  \"password\": \"Password@123\",\n  \"confirmPassword\": \"Password@123\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/auth/register-customer"
+      },
+      "response": []
+    }
+  ]
+}

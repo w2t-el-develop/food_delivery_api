@@ -22,4 +22,10 @@ public class UserType {
 
     @OneToMany(mappedBy = "userType", fetch = FetchType.LAZY)
     private List<User> users;
+
+    public UserType(String userTypeName) {
+        this.userTypeName = userTypeName;
+    }
+
+
 }

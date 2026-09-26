@@ -24,10 +24,10 @@ public class Customer {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<Address> addresses = new ArrayList<>();
-
+   // @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  //  @Builder.Default
+  //  private List<Address> addresses = new ArrayList<>();
+/* 
     public void addAddress(Address address) {
         addresses.add(address);
         address.setCustomer(this);
@@ -36,5 +36,5 @@ public class Customer {
     public void removeAddress(Address address) {
         addresses.remove(address);
         address.setCustomer(null);
-    }
+    }*/
 }

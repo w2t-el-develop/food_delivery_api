@@ -12,10 +12,10 @@ import org.springframework.stereotype.Component;
 public class ExceptionAuditAspect {
 
 
-    @AfterThrowing(
-            pointcut = "execution(* project.fooddelivery.api..*.*(..))",
+        @AfterThrowing(
+            pointcut = "execution(* project.fooddelivery.api..*.*(..)) && !execution(* project.fooddelivery.api..*Filter.*(..))",
             throwing = "ex"
-    )
+        )
     public void logAfterException(JoinPoint joinPoint, Exception ex) {
         String methodName = joinPoint.getSignature().toShortString();
         log.error("Exception occurred while executing method: {}",methodName);

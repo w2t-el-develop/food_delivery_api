@@ -22,9 +22,11 @@ import io.jsonwebtoken.security.Keys;
 public class JwtService {
     private String secretKey;
 
-    public String generateToken(String phoneNumber, String userId) {
+        public String generateToken(String phoneNumber, String userId, String customerId, String userType) {
       Map<String, Object> claims = new HashMap<>();
       claims.put("user_id", userId);
+            claims.put("customer_id", customerId);
+      claims.put("user_type", userType);
       return Jwts.builder()
               .claims(claims)
               .subject(phoneNumber)
@@ -38,7 +40,7 @@ public class JwtService {
         byte[] keyBytes= Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
-    
+
     public JwtService(){
         try {
             KeyGenerator keyGenerator =KeyGenerator.getInstance("HmacSHA256");
@@ -70,6 +72,10 @@ public class JwtService {
     public String extractUserId(String token) {
        return extractClaims(token, claims -> claims.get("user_id", String.class));
     }
+
+     public String extractCustomerId(String token) {
+         return extractClaims(token, claims -> claims.get("customer_id", String.class));
+     }
 
     private <T>T extractClaims(String token, Function<Claims,T> claimsResolver) {
        final Claims claims = extractAllClaims(token);
