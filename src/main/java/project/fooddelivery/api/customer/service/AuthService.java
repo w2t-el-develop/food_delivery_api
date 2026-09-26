@@ -58,7 +58,17 @@ public class AuthService {
             user.getUserType().getUserTypeName());
         return new RegistrationResponseDto(token);
     }
+ @Transactional
+ public RegistationRequestDto verify(LoginRequestDto loginRequest) {
+     Authentication authentication = authenticationManager.authenticate(
+             new UsernamePasswordAuthenticationToken(loginRequest.getPhone(), loginRequest.getPassword()));
+     if (authentication.isAuthenticated())
+         return jwtService.generateToken(user.getPhoneNumber(), user.getUserId(), customer.getCustomerId(),
+                 user.getUserType().getUserTypeName());
+     throw new InvalidUserInputException("The input is not correct");
+ }
 
+}
     
     
 }

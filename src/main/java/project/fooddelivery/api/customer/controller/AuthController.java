@@ -11,6 +11,7 @@ import project.fooddelivery.api.customer.dto.RegistrationRequestDto;
 import project.fooddelivery.api.customer.dto.RegistrationResponseDto;
 import project.fooddelivery.api.customer.service.AuthService;
 import org.springframework.http.ResponseEntity;
+import project.fooddelivery.api.customer.dto.LoginRequestDto;
 
 @RestController 
 @RequiredArgsConstructor 
@@ -22,5 +23,7 @@ public class AuthController {
     public  ResponseEntity<RegistrationResponseDto> registerCustomer(@Valid @RequestBody RegistrationRequestDto request) {
         return ResponseEntity.ok(authService.registerCustomer(request));
     }
-
+    @PostMapping("/Login-customer")
+    public  ResponseEntity<RegistrationResponseDto> LoginCustomer(@Valid @RequestBody LoginRequestDto request) {
+        return ResponseEntity.ok(authService.loginCustomer(request));
 }
