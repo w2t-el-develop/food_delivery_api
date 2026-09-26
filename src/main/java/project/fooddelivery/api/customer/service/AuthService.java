@@ -1,11 +1,14 @@
 package project.fooddelivery.api.customer.service;
 
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import project.fooddelivery.api.customer.dto.RegistrationRequestDto;
 import project.fooddelivery.api.customer.dto.RegistrationResponseDto;
+import project.fooddelivery.api.customer.dto.LoginRequestDto;
 import project.fooddelivery.api.customer.entity.Customer;
 import project.fooddelivery.api.customer.entity.User;
 import project.fooddelivery.api.customer.repository.CustomerRepository;
@@ -20,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
     private final UserRepository userRepository;
     private final CustomerRepository customerRepository;
+    private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final UserTypeService userTypeService;
@@ -58,17 +62,18 @@ public class AuthService {
             user.getUserType().getUserTypeName());
         return new RegistrationResponseDto(token);
     }
- @Transactional
- public RegistationRequestDto verify(LoginRequestDto loginRequest) {
-     Authentication authentication = authenticationManager.authenticate(
-             new UsernamePasswordAuthenticationToken(loginRequest.getPhone(), loginRequest.getPassword()));
-     if (authentication.isAuthenticated())
-         return jwtService.generateToken(user.getPhoneNumber(), user.getUserId(), customer.getCustomerId(),
-                 user.getUserType().getUserTypeName());
-     throw new InvalidUserInputException("The input is not correct");
- }
+    @Transactional(readOnly = true)
+    public RegistrationResponseDto loginCustomer(LoginRequestDto loginRequest) {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                loginRequest.phone(), loginRequest.password()));
 
-}
-    
-    
+        User user = userRepository.findByPhoneNumber(loginRequest.phone())
+                .orElseThrow(() -> new InvalidUserInputException("The input is not correct"));
+        Customer customer = customerRepository.findByUser_UserId(user.getUserId())
+                .orElseThrow(() -> new InvalidUserInputException("Customer account not found"));
+
+        String token = jwtService.generateToken(user.getPhoneNumber(), user.getUserId(), customer.getCustomerId(),
+                user.getUserType().getUserTypeName());
+        return new RegistrationResponseDto(token);
+    }
 }
