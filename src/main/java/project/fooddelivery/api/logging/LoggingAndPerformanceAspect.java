@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 public class LoggingAndPerformanceAspect {
-    @Around("execution(* project.fooddelivery.api..*.*(..))")
+    @Around("execution(* project.fooddelivery.api..*.*(..)) && !execution(* project.fooddelivery.api..*Filter.*(..))")
     public Object logAndMeasureExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
         String methodName = joinPoint.getSignature().toShortString();
