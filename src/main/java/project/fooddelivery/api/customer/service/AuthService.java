@@ -41,7 +41,7 @@ public class AuthService {
         if (userRepository.findByPhoneNumber(request.phone()).isPresent()) {
             throw new InvalidUserInputException("User with this phone number already exists");
         }
-        var user = new User();
+        User user = new User();
         user.setPhoneNumber(request.phone());
         user.setUserPassword(passwordEncoder.encode(request.password()));
         user.setFullName(request.fullName());
