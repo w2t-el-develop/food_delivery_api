@@ -1,6 +1,6 @@
 package project.fooddelivery.api.customer.dto;
 
-public record RegistrationResponseDto(
+public record TokenResponseDto(
     
     String token){
     

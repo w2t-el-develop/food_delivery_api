@@ -1,16 +1,13 @@
 package project.fooddelivery.api.service;
 
-import java.security.Key;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -18,11 +15,16 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+
 @Service
 public class JwtService {
-    private String secretKey;
+    private final SecretKey signingKey;
 
-        public String generateToken(String phoneNumber, String userId, String customerId, String userType) {
+    public JwtService(@Value("${jwt.secret}") String base64Secret) {
+        this.signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(base64Secret));
+    }
+
+    public String generateToken(String phoneNumber, String userId, String customerId, String userType) {
       Map<String, Object> claims = new HashMap<>();
       claims.put("user_id", userId);
             claims.put("customer_id", customerId);
@@ -32,23 +34,8 @@ public class JwtService {
               .subject(phoneNumber)
               .issuedAt(new Date(System.currentTimeMillis()))
               .expiration(new Date(System.currentTimeMillis() + 60 * 60 * 1000))
-              .signWith(getKey())
+              .signWith(signingKey)
               .compact();
-    }
-
-    private Key getKey() {
-        byte[] keyBytes= Decoders.BASE64.decode(secretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
-
-    public JwtService(){
-        try {
-            KeyGenerator keyGenerator =KeyGenerator.getInstance("HmacSHA256");
-            SecretKey sKey =keyGenerator.generateKey();
-            secretKey=Base64.getEncoder().encodeToString(sKey.getEncoded());
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e.getMessage());
-        }
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
@@ -62,11 +49,11 @@ public class JwtService {
     }
 
     private Date extractExpiration(String token) {
-       return extractClaims(token, Claims::getExpiration);
+       return extractAllClaims(token).getExpiration();
     }
 
     public String extractPhoneNumber(String token) {
-       return extractClaims(token, Claims::getSubject);
+       return extractAllClaims(token).getSubject();
     }
 
     public String extractUserId(String token) {
@@ -85,7 +72,7 @@ public class JwtService {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser().verifyWith((SecretKey) getKey()).build().parseSignedClaims(token).getPayload();
+        return Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token).getPayload();
     }
     
 }

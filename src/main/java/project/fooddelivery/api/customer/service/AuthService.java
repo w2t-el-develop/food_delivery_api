@@ -1,5 +1,8 @@
 package project.fooddelivery.api.customer.service;
 
+import java.util.Objects;
+import java.util.stream.Stream;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -7,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import project.fooddelivery.api.customer.dto.RegistrationRequestDto;
-import project.fooddelivery.api.customer.dto.RegistrationResponseDto;
+import project.fooddelivery.api.customer.dto.TokenResponseDto;
 import project.fooddelivery.api.customer.dto.LoginRequestDto;
 import project.fooddelivery.api.customer.entity.Customer;
 import project.fooddelivery.api.customer.entity.User;
@@ -21,59 +24,58 @@ import org.springframework.transaction.annotation.Transactional;
 @Service 
 @RequiredArgsConstructor
 public class AuthService {
-    private final UserRepository userRepository;
-    private final CustomerRepository customerRepository;
+
+    private final CustomerService customerService;
+    private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final UserTypeService userTypeService;
 
    
-    @Transactional
-    public RegistrationResponseDto registerCustomer(RegistrationRequestDto request) {
-        if (request.phone() == null || request.password() == null || 
-        request.confirmPassword() == null|| request.fullName() == null) {
-            throw new InvalidUserInputException("Missing required fields");
-        }
-        if (!request.password().equals(request.confirmPassword())) {
-            throw new InvalidUserInputException("Password and confirm password do not match");
-        }
-        if (userRepository.findByPhoneNumber(request.phone()).isPresent()) {
-            throw new InvalidUserInputException("User with this phone number already exists");
-        }
-        User user = new User();
-        user.setPhoneNumber(request.phone());
-        user.setUserPassword(passwordEncoder.encode(request.password()));
-        user.setFullName(request.fullName());
-        UserType userType = userTypeService.existsByUserTypeName("CUSTOMER")
-            .orElseGet(() -> {
-                UserType newUserType = new UserType();
-                newUserType.setUserTypeName("CUSTOMER");
-                return userTypeService.saveUserType(newUserType);
-            });
-        user.setUserType(userType);
-        user = userRepository.save(user);
-
-        Customer customer = new Customer();
-        customer.setUser(user);
-        customer = customerRepository.save(customer);
-
-        String token = jwtService.generateToken(user.getPhoneNumber(), user.getUserId(), customer.getCustomerId(),
-            user.getUserType().getUserTypeName());
-        return new RegistrationResponseDto(token);
+  @Transactional
+public TokenResponseDto registerCustomer(RegistrationRequestDto request) {
+    // 1. Lambda-based null check
+    if (Stream.of(request.phone(), request.password(), request.confirmPassword(), request.fullName()).anyMatch(Objects::isNull)) {
+        throw new InvalidUserInputException("Missing required fields");
     }
+
+    if (!request.password().equals(request.confirmPassword())) {
+        throw new InvalidUserInputException("Password and confirm password do not match");
+    }
+
+    userService.findByPhoneNumber(request.phone())
+        .ifPresent(u -> {
+            throw new InvalidUserInputException("User with this phone number already exists");
+        });
+
+    UserType userType = userTypeService.existsByUserTypeName("CUSTOMER")
+        .orElseGet(() -> userTypeService.saveUserType(new UserType("CUSTOMER")));
+
+    User user = userService.save(new User(request.phone(), passwordEncoder.encode(request.password()), request.fullName(), userType));
+    Customer customer = customerService.save(new Customer(user));
+
+    String token = jwtService.generateToken(
+        user.getPhoneNumber(),
+        user.getUserId(),
+        customer.getCustomerId(),
+        user.getUserType().getUserTypeName()
+    );
+
+    return new TokenResponseDto(token);   
+}
     @Transactional(readOnly = true)
-    public RegistrationResponseDto loginCustomer(LoginRequestDto loginRequest) {
+    public TokenResponseDto loginCustomer(LoginRequestDto loginRequest) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 loginRequest.phone(), loginRequest.password()));
 
-        User user = userRepository.findByPhoneNumber(loginRequest.phone())
+        User user = userService.findByPhoneNumber(loginRequest.phone())
                 .orElseThrow(() -> new InvalidUserInputException("The input is not correct"));
-        Customer customer = customerRepository.findByUser_UserId(user.getUserId())
+        Customer customer = customerService.findByUserId(user.getUserId())
                 .orElseThrow(() -> new InvalidUserInputException("Customer account not found"));
 
         String token = jwtService.generateToken(user.getPhoneNumber(), user.getUserId(), customer.getCustomerId(),
                 user.getUserType().getUserTypeName());
-        return new RegistrationResponseDto(token);
+        return new TokenResponseDto(token);
     }
 }

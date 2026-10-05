@@ -20,7 +20,7 @@ public class User {
     @Column(name = "full_name")
     private String fullName;
 
-    @Column(name = "phone_number")
+    @Column(name = "phone_number", unique = true, nullable = false)
     private String phoneNumber;
 
     @Column(name = "user_password", nullable = false)
@@ -29,5 +29,11 @@ public class User {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_type_id", nullable = false)
     private UserType userType;
-
+    
+    public User(String phoneNumber, String userPassword, String fullName, UserType userType) {
+        this.phoneNumber = phoneNumber;
+        this.userPassword = userPassword;
+        this.fullName = fullName;
+        this.userType = userType;
+    }
 }

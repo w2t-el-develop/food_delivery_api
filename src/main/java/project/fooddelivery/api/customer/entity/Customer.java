@@ -24,6 +24,10 @@ public class Customer {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
+    public Customer(User user) {
+        this.user = user;
+    }
+
    // @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
   //  @Builder.Default
   //  private List<Address> addresses = new ArrayList<>();
