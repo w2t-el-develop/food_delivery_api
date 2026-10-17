@@ -1,21 +1,22 @@
-package project.fooddelivery.api.customer.service;
-
-import org.springframework.stereotype.Service;
+package project.fooddelivery.api.Customer.service;
 
 import lombok.RequiredArgsConstructor;
-import project.fooddelivery.api.customer.entity.Customer;
-import project.fooddelivery.api.customer.repository.CustomerRepository;
+import org.springframework.stereotype.Service;
+import project.fooddelivery.api.Customer.entity.Customer;
+import project.fooddelivery.api.Customer.repository.CustomerRepository;
 
-@Service 
-@RequiredArgsConstructor 
+
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
 public class CustomerService {
+
     private final CustomerRepository customerRepository;
 
-    public Customer saveCustomer(Customer customer) {
-        return customerRepository.save(customer);
+    public Optional<Customer> getCustomerByCustomerId(UUID customerId){
+        return customerRepository.getCustomerByCustomerId(customerId);
     }
-   
-   
 
-    
 }

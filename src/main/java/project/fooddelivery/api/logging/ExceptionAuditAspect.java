@@ -11,9 +11,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class ExceptionAuditAspect {
 
+<<<<<<< HEAD
 
         @AfterThrowing(
             pointcut = "execution(* project.fooddelivery.api..*.*(..)) && !execution(* project.fooddelivery.api..*Filter.*(..))",
+=======
+    @AfterThrowing(
+            pointcut = "execution(* project.fooddelivery.api..*.*(..))",
+>>>>>>> origin/develop
             throwing = "ex"
         )
     public void logAfterException(JoinPoint joinPoint, Exception ex) {
