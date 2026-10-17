@@ -23,7 +23,7 @@ public class MenuItemService {
     }
 
     public MenuItem getMenuItemIfAvailable(UUID menuItemId) {
-        return menuItemRepository.getMenuItemIfAvailable(menuItemId)
+        return menuItemRepository.getMenuItemByIdIfAvailable(menuItemId)
                 .orElseThrow(()-> new MenuItemAvailabilityException("Menu item is not available"));
     }
 
