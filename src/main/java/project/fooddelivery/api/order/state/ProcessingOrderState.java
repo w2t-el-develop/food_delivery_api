@@ -21,7 +21,7 @@ public class ProcessingOrderState implements OrderState {
 
     @Override
     public void deliverOrder() {
-//        orderService.changeOrderState(new DeliveredOrderState(orderService));
+        orderService.changeOrderState(new DeliveredOrderState(orderService));
     }
 
     @Override
