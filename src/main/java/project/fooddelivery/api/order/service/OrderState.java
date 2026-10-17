@@ -1,4 +1,4 @@
-package project.fooddelivery.api.order.state;
+package project.fooddelivery.api.order.service;
 
 public interface OrderState {
     void processOrder();

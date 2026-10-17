@@ -1,11 +1,10 @@
-package project.fooddelivery.api.order.state;
+package project.fooddelivery.api.order.service;
 
 import lombok.RequiredArgsConstructor;
-import project.fooddelivery.api.order.service.OrderService;
 
 @RequiredArgsConstructor
 public class DeliveredOrderState implements OrderState {
-    private final OrderService orderService;
+    private final OrderManagementService orderManagementService;
 
     @Override
     public void processOrder() {

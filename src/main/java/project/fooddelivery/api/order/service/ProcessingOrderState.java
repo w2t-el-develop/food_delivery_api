@@ -1,12 +1,11 @@
-package project.fooddelivery.api.order.state;
+package project.fooddelivery.api.order.service;
 
 import lombok.RequiredArgsConstructor;
 import project.fooddelivery.api.order.exception.OrderAlreadyProcessingException;
-import project.fooddelivery.api.order.service.OrderService;
 
 @RequiredArgsConstructor
-public class ProcessingOrderState implements OrderState {
-    private final OrderService orderService;
+public class ProcessingOrderState implements OrderState{
+    private final OrderManagementService orderManagementService;
 
     @Override
     public void processOrder() {
@@ -21,7 +20,7 @@ public class ProcessingOrderState implements OrderState {
 
     @Override
     public void deliverOrder() {
-        orderService.changeOrderState(new DeliveredOrderState(orderService));
+        orderManagementService.changeOrderState(new DeliveredOrderState(orderManagementService));
     }
 
     @Override

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ExceptionAuditAspect {
 
+
     @AfterThrowing(
             pointcut = "execution(* project.fooddelivery.api..*.*(..))",
             throwing = "ex"

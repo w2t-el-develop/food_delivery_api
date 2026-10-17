@@ -1,17 +1,16 @@
-package project.fooddelivery.api.order.state;
+package project.fooddelivery.api.order.service;
 
 import lombok.RequiredArgsConstructor;
 import project.fooddelivery.api.order.exception.IllegalOrderStateException;
-import project.fooddelivery.api.order.service.OrderService;
 
 @RequiredArgsConstructor
 public class PendingOrderState implements OrderState {
 
-    private final OrderService orderService;
+    private final OrderManagementService orderManagementService;
 
     @Override
     public void processOrder() {
-//        orderService.changeOrderState(new ProcessingOrderState(orderService));
+        orderManagementService.changeOrderState(new ProcessingOrderState(orderManagementService));
     }
 
     @Override
@@ -26,6 +25,6 @@ public class PendingOrderState implements OrderState {
 
     @Override
     public void cancelOrder() {
-//        orderService.changeOrderState(new CancelledOrderState(orderService));
+        orderManagementService.changeOrderState(new CancelledOrderState(orderManagementService));
     }
 }

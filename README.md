@@ -1,33 +1,8 @@
-# Food Delivery API
+# Cart Management API
 
-This README documents each food-delivery feature in its own section so its architecture, behavior, data contracts, and implementation notes can be understood independently.
+Production-oriented cart management module for a Spring Boot food-delivery application.
 
-## Table of Contents
-
-- [Cart Management](#cart-management)
-  - [Architecture Overview](#architecture-overview)
-  - [API Conventions](#api-conventions)
-  - [Endpoint Collection](#endpoint-collection)
-  - [Data Contracts](#data-contracts)
-  - [1. Get Cart](#1-get-cart)
-  - [2. Add Item to Cart](#2-add-item-to-cart)
-  - [3. Update Cart Item Quantity](#3-update-cart-item-quantity)
-  - [4. Remove Single Cart Item](#4-remove-single-cart-item)
-  - [5. Batch Remove Cart Items](#5-batch-remove-cart-items)
-  - [6. Clear Cart](#6-clear-cart)
-  - [Validation and Error Handling](#validation-and-error-handling)
-  - [Persistence Notes](#persistence-notes)
-  - [Future Authentication Refactor](#future-authentication-refactor)
-  - [Cart Management Summary](#cart-management-summary)
-- [Order Management](#order-management)
-  - [Order Entity-Relationship Diagram](#order-entity-relationship-diagram)
-  - [Order State Pattern UML](#order-state-pattern-uml)
-
----
-
-## Cart Management
-
-The cart feature provides customer-scoped operations for reading a cart, adding and updating items, removing individual or multiple items, and clearing the cart. This section documents its REST contracts, validation rules, request flows, and persistence behavior.
+This document describes the current **Cart** and **Cart Item** REST API, including endpoint contracts, request/response behavior, validation rules, sequence diagrams, flowcharts, and service-level pseudocode.
 
 > **Current authentication status**
 >
@@ -35,7 +10,27 @@ The cart feature provides customer-scoped operations for reading a cart, adding 
 >
 > After authentication is introduced, the recommended public API is to remove `customerId` from the path and resolve it from the authenticated principal/JWT.
 
-### Architecture Overview
+---
+
+## Table of Contents
+
+- [Architecture Overview](#architecture-overview)
+- [API Conventions](#api-conventions)
+- [Endpoint Collection](#endpoint-collection)
+- [Data Contracts](#data-contracts)
+- [1. Get Cart](#1-get-cart)
+- [2. Add Item to Cart](#2-add-item-to-cart)
+- [3. Update Cart Item Quantity](#3-update-cart-item-quantity)
+- [4. Remove Single Cart Item](#4-remove-single-cart-item)
+- [5. Batch Remove Cart Items](#5-batch-remove-cart-items)
+- [6. Clear Cart](#6-clear-cart)
+- [Validation and Error Handling](#validation-and-error-handling)
+- [Persistence Notes](#persistence-notes)
+- [Future Authentication Refactor](#future-authentication-refactor)
+
+---
+
+# Architecture Overview
 
 The cart module is modeled around `Cart` as the main business resource and `CartItem` as a child resource.
 
@@ -75,7 +70,7 @@ flowchart LR
     CartItemRepository --> DB
 ```
 
-#### Controller responsibilities
+### Controller responsibilities
 
 - `CartController`
     - Get the whole cart.
@@ -87,7 +82,7 @@ flowchart LR
     - Remove one item.
     - Batch remove items.
 
-#### Service responsibility
+### Service responsibility
 
 `CartService` owns cart business operations.
 
@@ -95,7 +90,7 @@ Separating controllers does **not** require creating a separate `CartItemService
 
 ---
 
-### API Conventions
+# API Conventions
 
 Base path:
 
@@ -122,7 +117,7 @@ General rules used by this API:
 
 ---
 
-### Endpoint Collection
+# Endpoint Collection
 
 | Feature | HTTP | Endpoint | Body | Success |
 |---|---|---|---|---|
@@ -137,9 +132,9 @@ General rules used by this API:
 
 ---
 
-### Data Contracts
+# Data Contracts
 
-#### AddToCartRequestDto
+## AddToCartRequestDto
 
 ```java
 public record AddToCartRequestDto(
@@ -166,7 +161,7 @@ Example:
 
 ---
 
-#### UpdateCartItemQuantityRequest
+## UpdateCartItemQuantityRequest
 
 ```java
 public record UpdateCartItemQuantityRequest(
@@ -189,7 +184,7 @@ Example:
 
 ---
 
-#### RemoveCartItemsRequest
+## RemoveCartItemsRequest
 
 A `Set` is preferred so duplicate IDs are naturally removed.
 
@@ -216,7 +211,7 @@ Example:
 
 ---
 
-#### CartItemResponseDto
+## CartItemResponseDto
 
 ```java
 public record CartItemResponseDto(
@@ -232,7 +227,7 @@ public record CartItemResponseDto(
 
 ---
 
-#### ErrorResponse
+## ErrorResponse
 
 ```java
 @Builder
@@ -256,9 +251,9 @@ Example:
 
 ---
 
-### 1. Get Cart
+# 1. Get Cart
 
-#### Endpoint
+## Endpoint
 
 ```http
 GET /api/v1/customers/{customerId}/cart
@@ -266,7 +261,7 @@ GET /api/v1/customers/{customerId}/cart
 
 Returns the customer's current cart and its items.
 
-##### Example response
+### Example response
 
 ```json
 {
@@ -283,7 +278,7 @@ Returns the customer's current cart and its items.
 }
 ```
 
-#### Sequence Diagram
+## Sequence Diagram
 
 ```mermaid
 sequenceDiagram
@@ -310,7 +305,7 @@ sequenceDiagram
     CC-->>Client: 200 OK
 ```
 
-#### Flowchart
+## Flowchart
 
 ```mermaid
 flowchart TD
@@ -324,7 +319,7 @@ flowchart TD
     F --> G[Return 200 OK]
 ```
 
-#### Pseudocode
+## Pseudocode
 
 ```text
 FUNCTION getCart(customerId):
@@ -345,9 +340,9 @@ FUNCTION getCart(customerId):
 
 ---
 
-### 2. Add Item to Cart
+# 2. Add Item to Cart
 
-#### Endpoint
+## Endpoint
 
 ```http
 POST /api/v1/customers/{customerId}/cart/items
@@ -371,7 +366,7 @@ The client does **not** send:
 
 The current implementation uses an in-memory `MockMenuItemCatalog` until a real menu table/service exists.
 
-##### Business behavior
+### Business behavior
 
 - Validate menu item.
 - Validate menu item availability.
@@ -381,7 +376,7 @@ The current implementation uses an in-memory `MockMenuItemCatalog` until a real 
 - Otherwise create a new cart item.
 - Return the resulting cart item.
 
-#### Sequence Diagram
+## Sequence Diagram
 
 ```mermaid
 sequenceDiagram
@@ -434,7 +429,7 @@ sequenceDiagram
     end
 ```
 
-#### Flowchart
+## Flowchart
 
 ```mermaid
 flowchart TD
@@ -464,7 +459,7 @@ flowchart TD
     P --> Q[Return 200 OK]
 ```
 
-#### Pseudocode
+## Pseudocode
 
 ```text
 FUNCTION addToCart(customerId, request):
@@ -512,9 +507,9 @@ FUNCTION addToCart(customerId, request):
 
 ---
 
-### 3. Update Cart Item Quantity
+# 3. Update Cart Item Quantity
 
-#### Endpoint
+## Endpoint
 
 ```http
 PATCH /api/v1/customers/{customerId}/cart/items/{cartItemId}
@@ -533,7 +528,7 @@ The `cartItemId` identifies the existing resource. The new quantity belongs in t
 
 Quantity must be greater than zero.
 
-#### Sequence Diagram
+## Sequence Diagram
 
 ```mermaid
 sequenceDiagram
@@ -561,7 +556,7 @@ sequenceDiagram
     end
 ```
 
-#### Flowchart
+## Flowchart
 
 ```mermaid
 flowchart TD
@@ -577,7 +572,7 @@ flowchart TD
     H --> I[Return 200 OK]
 ```
 
-#### Pseudocode
+## Pseudocode
 
 ```text
 FUNCTION updateQuantity(customerId, cartItemId, request):
@@ -601,9 +596,9 @@ FUNCTION updateQuantity(customerId, cartItemId, request):
 
 ---
 
-### 4. Remove Single Cart Item
+# 4. Remove Single Cart Item
 
-#### Endpoint
+## Endpoint
 
 ```http
 DELETE /api/v1/customers/{customerId}/cart/items/{cartItemId}
@@ -617,7 +612,7 @@ Successful response:
 
 The delete query includes both `cartItemId` and `customerId` so the operation also enforces ownership.
 
-#### Repository concept
+## Repository concept
 
 ```java
 @Modifying
@@ -636,7 +631,7 @@ int deleteByCartItemIdAndCustomerId(
 
 The returned `int` is the number of deleted rows.
 
-#### Sequence Diagram
+## Sequence Diagram
 
 ```mermaid
 sequenceDiagram
@@ -662,7 +657,7 @@ sequenceDiagram
     end
 ```
 
-#### Flowchart
+## Flowchart
 
 ```mermaid
 flowchart TD
@@ -673,7 +668,7 @@ flowchart TD
     C -- Yes --> E[Return 204 No Content]
 ```
 
-#### Pseudocode
+## Pseudocode
 
 ```text
 FUNCTION removeItem(customerId, cartItemId):
@@ -692,9 +687,9 @@ FUNCTION removeItem(customerId, cartItemId):
 
 ---
 
-### 5. Batch Remove Cart Items
+# 5. Batch Remove Cart Items
 
-#### Endpoint
+## Endpoint
 
 ```http
 POST /api/v1/customers/{customerId}/cart/items/batch-delete
@@ -725,7 +720,7 @@ This endpoint may also receive a single ID:
 
 The database still executes a valid bulk `IN (...)` delete.
 
-#### Repository concept
+## Repository concept
 
 ```java
 @Modifying
@@ -744,7 +739,7 @@ This is a **bulk delete**, not JDBC batching.
 
 For 100 requested IDs, the goal is one SQL delete statement with an `IN` predicate rather than 100 individual `DELETE` statements.
 
-#### Sequence Diagram
+## Sequence Diagram
 
 ```mermaid
 sequenceDiagram
@@ -766,7 +761,7 @@ sequenceDiagram
     CIC-->>Client: 204 No Content
 ```
 
-#### Flowchart
+## Flowchart
 
 ```mermaid
 flowchart TD
@@ -779,7 +774,7 @@ flowchart TD
     F --> G[Return 204 No Content]
 ```
 
-#### Pseudocode
+## Pseudocode
 
 ```text
 FUNCTION removeItems(customerId, request):
@@ -799,7 +794,7 @@ FUNCTION removeItems(customerId, request):
     RETURN no content
 ```
 
-##### Why not `deleteAllByIdInBatch(...)`?
+### Why not `deleteAllByIdInBatch(...)`?
 
 `deleteAllByIdInBatch(ids)` can bulk-delete IDs, but it does not naturally include the ownership requirement:
 
@@ -812,9 +807,9 @@ The custom bulk query performs identification, ownership filtering, and deletion
 
 ---
 
-### 6. Clear Cart
+# 6. Clear Cart
 
-#### Endpoint
+## Endpoint
 
 ```http
 DELETE /api/v1/customers/{customerId}/cart
@@ -841,7 +836,7 @@ The operation is intentionally idempotent:
 - Cart is already empty -> success.
 - No matching items -> success.
 
-#### Repository concept
+## Repository concept
 
 ```java
 @Modifying
@@ -852,7 +847,7 @@ The operation is intentionally idempotent:
 int deleteAllByCustomerId(UUID customerId);
 ```
 
-#### Sequence Diagram
+## Sequence Diagram
 
 ```mermaid
 sequenceDiagram
@@ -874,7 +869,7 @@ sequenceDiagram
     CC-->>Client: 204 No Content
 ```
 
-#### Flowchart
+## Flowchart
 
 ```mermaid
 flowchart TD
@@ -889,7 +884,7 @@ flowchart TD
     F --> G[Return 204 No Content]
 ```
 
-#### Pseudocode
+## Pseudocode
 
 ```text
 FUNCTION clearCart(customerId):
@@ -904,7 +899,7 @@ FUNCTION clearCart(customerId):
 
 ---
 
-### Validation and Error Handling
+# Validation and Error Handling
 
 Request DTO validation uses Jakarta Bean Validation.
 
@@ -976,9 +971,9 @@ Recommended error mapping:
 
 ---
 
-### Persistence Notes
+# Persistence Notes
 
-#### `@Modifying`
+## `@Modifying`
 
 Spring Data assumes an `@Query` is a read query unless told otherwise.
 
@@ -1011,7 +1006,7 @@ when appropriate.
 
 ---
 
-#### Transaction Boundary
+## Transaction Boundary
 
 Business write operations should normally be transactional at the service layer:
 
@@ -1040,7 +1035,7 @@ This keeps the transaction aligned with the business operation rather than indiv
 
 ---
 
-#### Hibernate Dirty Checking
+## Hibernate Dirty Checking
 
 For an entity loaded within an active transaction:
 
@@ -1068,7 +1063,7 @@ repository.save(newCartItem);
 
 ---
 
-#### Identifier Generation
+## Identifier Generation
 
 `@ColumnDefault("uuidv7()")` alone is **not** a JPA identifier generator.
 
@@ -1092,7 +1087,7 @@ If UUIDv7 is required, generate it consistently in the application or configure 
 
 ---
 
-#### Relationship Mapping
+## Relationship Mapping
 
 Recommended relationship:
 
@@ -1126,7 +1121,7 @@ The `Cart.items` collection is useful for aggregate navigation, but targeted rep
 
 ---
 
-### Future Authentication Refactor
+# Future Authentication Refactor
 
 Current API:
 
@@ -1182,7 +1177,7 @@ Only the source of `customerId` changes.
 
 ---
 
-### Cart Management Summary
+# Summary
 
 The cart API follows these core design decisions:
 
@@ -1213,146 +1208,3 @@ The most important rules are:
 - Use one bulk database delete for batch removal and clear-cart operations.
 - Enforce ownership inside repository predicates where practical.
 - Keep `Cart` as the aggregate-level business concept even when controllers are separated.
-
----
-
-## Order Management
-
-The order feature defines the relational model for orders, line items, statuses, workflow steps, status mappings, and tracking history. Its service package uses the State pattern to keep order-specific behavior in concrete state classes.
-
-### Order Entity-Relationship Diagram
-
-The order model stores the order header separately from its line items, status definitions, workflow steps, status-to-workflow mappings, and tracking history. Every order must have a status, every order item must belong to an order, and an order-item quantity must be greater than zero.
-
-```mermaid
-erDiagram
-    ORDER {
-        String order_id PK
-        String customer_id
-        String restaurant_id
-        datetime order_date
-        String address_id
-        double order_total_price
-        String order_status_id FK "NOT NULL"
-    }
-
-    ORDER_ITEM {
-        String order_item_id PK
-        String order_id FK "NOT NULL"
-        String menu_item_id
-        int order_item_quantity "CHECK > 0"
-        double order_item_price
-    }
-
-    ORDER_STATUS {
-        String order_status_id PK
-        String order_status_code
-    }
-
-    ORDER_WORKFLOW_STEP {
-        String order_workflow_step_id PK
-        String order_workflow_step_description
-        String order_workflow_next_step_id
-    }
-
-    ORDER_STATUS_STEPS {
-        String order_status_step_id PK
-        String order_status_id FK "NOT NULL"
-        String order_workflow_step_id FK "NOT NULL"
-    }
-
-    ORDER_TRACKING {
-        String order_id FK "NOT NULL"
-        String order_status_id
-        datetime order_tracking_date
-        String restaurant_id
-        String customer_id
-    }
-
-    ORDER ||--o{ ORDER_ITEM : contains
-    ORDER_STATUS ||--o{ ORDER : classifies
-    ORDER ||--o{ ORDER_TRACKING : records
-    ORDER_STATUS ||--o{ ORDER_STATUS_STEPS : has
-    ORDER_WORKFLOW_STEP ||--o{ ORDER_STATUS_STEPS : maps
-```
-
-The diagram only marks relationships declared by the model. For example, `Order_Tracking.order_status_id` and `Order_Workflow_Step.order_workflow_next_step_id` are shown as attributes because no foreign-key references were specified for them.
-
-### Order State Pattern UML
-
-`OrderManagementService` is the State pattern context. It delegates an operation to its current `OrderState`, while each concrete state holds the context so it can replace the active state when a valid transition occurs.
-
-```mermaid
-classDiagram
-    class OrderManagementService {
-        -OrderState orderState
-        +OrderManagementService()
-        +changeOrderState(OrderState orderState) void
-        -processOrder() void
-        +deliverOrder() void
-        +cancelOrder() void
-    }
-
-    class OrderState {
-        <<interface>>
-        +processOrder() void
-        +shipOrder() void
-        +deliverOrder() void
-        +cancelOrder() void
-    }
-
-    class PendingOrderState {
-        -OrderManagementService orderManagementService
-        +processOrder() void
-        +shipOrder() void
-        +deliverOrder() void
-        +cancelOrder() void
-    }
-
-    class ProcessingOrderState {
-        -OrderManagementService orderManagementService
-        +processOrder() void
-        +shipOrder() void
-        +deliverOrder() void
-        +cancelOrder() void
-    }
-
-    class ShippedOrderState {
-        -OrderManagementService orderManagementService
-        +processOrder() void
-        +shipOrder() void
-        +deliverOrder() void
-        +cancelOrder() void
-    }
-
-    class DeliveredOrderState {
-        -OrderManagementService orderManagementService
-        +processOrder() void
-        +shipOrder() void
-        +deliverOrder() void
-        +cancelOrder() void
-    }
-
-    class CancelledOrderState {
-        -OrderManagementService orderManagementService
-        +processOrder() void
-        +shipOrder() void
-        +deliverOrder() void
-        +cancelOrder() void
-    }
-
-    OrderManagementService o-- OrderState : current state
-    OrderState <|.. PendingOrderState
-    OrderState <|.. ProcessingOrderState
-    OrderState <|.. ShippedOrderState
-    OrderState <|.. DeliveredOrderState
-    OrderState <|.. CancelledOrderState
-
-    PendingOrderState --> OrderManagementService : context
-    ProcessingOrderState --> OrderManagementService : context
-    ShippedOrderState --> OrderManagementService : context
-    DeliveredOrderState --> OrderManagementService : context
-    CancelledOrderState --> OrderManagementService : context
-```
-
-The service starts in `PendingOrderState`. The currently implemented state changes are `Pending` to `Processing` through `processOrder`, `Pending` to `Cancelled` through `cancelOrder`, and `Processing` to `Delivered` through `deliverOrder`. Other state methods are either guards that throw an exception or placeholders with no state change.

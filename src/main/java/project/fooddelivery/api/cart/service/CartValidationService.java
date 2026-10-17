@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class CartHelperService {
+public class CartValidationService {
 
     private final CartRepository cartRepository;
 

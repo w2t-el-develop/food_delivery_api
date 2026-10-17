@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
 @Builder
@@ -19,6 +18,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CartItem {
+
 
     @Id
     @ColumnDefault("uuidv7()")
@@ -37,6 +37,5 @@ public class CartItem {
     private Integer cartItemQuantity;
 
     @Column(name = "cart_item_price")
-    BigDecimal cartItemPrice;
-
+    Double cartItemPrice;
 }

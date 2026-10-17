@@ -1,5 +1,6 @@
 package project.fooddelivery.api.cart.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
@@ -10,9 +11,10 @@ import project.fooddelivery.api.cart.entity.Cart;
 import project.fooddelivery.api.cart.entity.CartItem;
 import project.fooddelivery.api.cart.repository.CartItemRepository;
 import project.fooddelivery.api.cart.repository.CartRepository;
-import project.fooddelivery.api.menu.entity.MenuItem;
+import project.fooddelivery.api.menu.MockMenuItem;
+import project.fooddelivery.api.menu.MockMenuItemRepository;
+import project.fooddelivery.api.menu.exception.MenuItemExistenceException;
 import project.fooddelivery.api.exceptionhandling.ResourceNotFoundException;
-import project.fooddelivery.api.menu.service.MenuItemService;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -24,9 +26,9 @@ public class CartService {
 
     private final CartItemService cartItemService;
     private final CartRepository cartRepository;
+    private final MockMenuItemRepository mockMenuItemRepository;
     private final CartItemRepository cartItemRepository;
-    private final CartHelperService cartHelperService;
-    private final MenuItemService menuItemService;
+    private final CartValidationService cartValidationService;
 
     public CartResponseDto viewCart(UUID customerId) {
         Cart cart = getCartByCustomerId(customerId).orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
@@ -36,13 +38,18 @@ public class CartService {
 
     @Transactional
     public CartItem addToCart(UUID customerId, AddToCartRequestDto addToCartRequestDto) {
-        MenuItem menuItem = menuItemService.getMenuItemIfAvailable(addToCartRequestDto.menItemId());
+        MockMenuItem menuItem = mockMenuItemRepository.getById(addToCartRequestDto.menItemId())
+                .orElseThrow(() -> new EntityNotFoundException("MenuItem not found"));
+        if (!menuItem.available()) {
+            //todo: move menu item validation to menu item service.
+            throw new MenuItemExistenceException("MenuItem is not available");
+        }
         Cart cart = getCartByCustomerId(customerId).orElseGet(() -> createCart(customerId));
         return cartItemService.createCartItem(cart, menuItem, addToCartRequestDto.quantity());
     }
 
 
-    public Optional<Cart> getCartByCustomerId(UUID customerId) {
+    Optional<Cart> getCartByCustomerId(UUID customerId) {
         return cartRepository.getCartByCustomerId(customerId);
     }
 
@@ -56,7 +63,7 @@ public class CartService {
     
     @Transactional
     public void clearCart(UUID customerId) {
-        cartHelperService.isCartBelongsToCustomer(customerId);
+        cartValidationService.isCartBelongsToCustomer(customerId);
         cartItemRepository.deleteAllByCustomerId(customerId);
     }
 
