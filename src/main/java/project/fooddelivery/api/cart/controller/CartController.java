@@ -17,20 +17,20 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("carts/customers/{customerId}")
+@RequestMapping("carts/customers/{customer-id}")
 public class CartController {
 
     private final CartService cartService;
     private final CartItemMapper cartItemMapper;
 
     @GetMapping
-    ResponseEntity<CartResponseDto> viewCart(@PathVariable UUID customerId) {
+    ResponseEntity<CartResponseDto> viewCart(@PathVariable("customer-id") UUID customerId) {
         CartResponseDto cartResponseDto = cartService.viewCart(customerId);
         return ResponseEntity.ok(cartResponseDto);
     }
 
     @PostMapping
-    ResponseEntity<CartItemResponseDto> addToCart(@PathVariable UUID customerId,
+    ResponseEntity<CartItemResponseDto> addToCart(@PathVariable("customer-id") UUID customerId,
                                                   @Valid @RequestBody AddToCartRequestDto addToCartRequestDto) {
         CartItem cartItem = cartService.addToCart(customerId, addToCartRequestDto);
         return new ResponseEntity<>(cartItemMapper.toResponseDto(cartItem), HttpStatus.CREATED);
@@ -39,7 +39,7 @@ public class CartController {
 
     @DeleteMapping
     public ResponseEntity<Void> clearCart(
-            @PathVariable UUID customerId) {
+            @PathVariable("customer-id") UUID customerId) {
         cartService.clearCart(customerId);
         return ResponseEntity.noContent().build();
     }
