@@ -1,7 +1,8 @@
-package project.fooddelivery.api.order.service;
+package project.fooddelivery.api.order.handler;
 
 import org.springframework.stereotype.Component;
 import project.fooddelivery.api.order.dto.OrderRequestDto;
+import project.fooddelivery.api.order.entity.Order;
 
 @Component
 public class AbstractOrderHandler implements OrderHandler {
@@ -14,11 +15,13 @@ public class AbstractOrderHandler implements OrderHandler {
         return orderHandler;
     }
 
+
     @Override
-    public boolean handle(OrderRequestDto orderRequestDto) {
+    public Order handle(OrderRequestDto orderRequestDto, Order order) {
         if(nextOrderHandler != null) {
-            return nextOrderHandler.handle(orderRequestDto);
+            return nextOrderHandler.handle(orderRequestDto, order);
         }
-        return true;
+        return order;
     }
+
 }
