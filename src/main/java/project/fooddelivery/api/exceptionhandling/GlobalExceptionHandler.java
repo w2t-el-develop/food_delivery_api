@@ -2,12 +2,9 @@ package project.fooddelivery.api.exceptionhandling;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import project.fooddelivery.api.auth.exception.InvalidRefreshTokenException;
-import project.fooddelivery.api.auth.exception.UserAlreadyExistsException;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
@@ -25,42 +22,6 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .build();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
-    }
-
-
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
-        ErrorResponse errorResponse = ErrorResponse
-                .builder()
-                .status(HttpStatus.UNAUTHORIZED.name())
-                .message("Invalid phone number or password")
-                .timestamp(LocalDateTime.now())
-                .build();
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
-    }
-
-
-    @ExceptionHandler(InvalidRefreshTokenException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidRefreshTokenException(InvalidRefreshTokenException ex) {
-        ErrorResponse errorResponse = ErrorResponse
-                .builder()
-                .status(HttpStatus.UNAUTHORIZED.name())
-                .message(ex.getMessage())
-                .timestamp(LocalDateTime.now())
-                .build();
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
-    }
-
-
-    @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
-        ErrorResponse errorResponse = ErrorResponse
-                .builder()
-                .status(HttpStatus.CONFLICT.name())
-                .message(ex.getMessage())
-                .timestamp(LocalDateTime.now())
-                .build();
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
 
