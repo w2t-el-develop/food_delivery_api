@@ -30,4 +30,7 @@ public class MenuItem {
 
     @Column(name = "menu_item_price", nullable = false, precision = 12, scale = 2)
     private BigDecimal menuItemPrice;
+
+    @Column(name = "is_menu_item_available")
+    private boolean isMenuItemAvailable;
 }
