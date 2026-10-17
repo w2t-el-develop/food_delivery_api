@@ -15,6 +15,6 @@ public record RegisterRequestDto(
         @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Phone number must be 10 to 15 digits")
         String phoneNumber,
         @NotBlank(message = "Password is required")
-        @Size(min = 8, max = 72, message = "Password must be between 8 and 72 characters")
+        @Size(min = 8, max = 128, message = "Password must be between 8 and 128 characters")
         String password) {
 }
