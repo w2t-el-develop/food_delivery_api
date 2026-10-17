@@ -9,8 +9,8 @@ import project.fooddelivery.api.cart.dto.UpdateQuantityRequestDto;
 import project.fooddelivery.api.cart.entity.Cart;
 import project.fooddelivery.api.cart.entity.CartItem;
 import project.fooddelivery.api.cart.repository.CartItemRepository;
-import project.fooddelivery.api.menu.MockMenuItem;
 import project.fooddelivery.api.exceptionhandling.ResourceNotFoundException;
+import project.fooddelivery.api.menu.entity.MenuItem;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,15 +19,16 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class CartItemService {
+
     private final CartItemRepository cartItemRepository;
-    private final CartItemValidationService cartItemValidationService;
-    private final CartValidationService cartValidationService;
+    private final CartItemHelperService cartItemHelperService;
+    private final CartHelperService cartHelperService;
 
     @Transactional
     public CartItem UpdateCartItemQuantity(UUID customerId, UUID cartItemId,
-                                                      UpdateQuantityRequestDto updateQuantityRequestDto) {
-        cartValidationService.isCartBelongsToCustomer(customerId);
-        cartItemValidationService.isCartItemBelongsToCustomer(cartItemId, customerId);
+                                           UpdateQuantityRequestDto updateQuantityRequestDto) {
+        cartHelperService.isCartBelongsToCustomer(customerId);
+        cartItemHelperService.isCartItemBelongsToCustomer(cartItemId, customerId);
         CartItem cartItem = getCartItem(customerId, cartItemId)
                 .orElseThrow(() -> new ResourceNotFoundException("CartItem not found"));
         cartItem.setCartItemQuantity(updateQuantityRequestDto.quantity());
@@ -37,8 +38,8 @@ public class CartItemService {
 
     @Transactional
     public void removeItem(UUID customerId, UUID cartItemId) {
-        cartValidationService.isCartBelongsToCustomer(customerId);
-        cartItemValidationService.isCartItemBelongsToCustomer(cartItemId, customerId);
+        cartHelperService.isCartBelongsToCustomer(customerId);
+        cartItemHelperService.isCartItemBelongsToCustomer(cartItemId, customerId);
         int deletedRows = cartItemRepository.deleteByCartItemIdAndCustomerId(cartItemId, customerId);
         if (deletedRows == 0) {
             throw new ResourceNotFoundException("Cart item not found");
@@ -54,13 +55,17 @@ public class CartItemService {
         }
     }
 
-
-    public CartItem createCartItem(Cart cart, MockMenuItem menuItem, Integer quantity) {
-        CartItem cartItem = CartItem.builder().cart(cart).menuItemId(menuItem.menuItemId()).cartItemQuantity(quantity)
-                .cartItemPrice(menuItem.price()).build();
+    public CartItem createCartItem(Cart cart, MenuItem menuItem, Integer quantity) {
+        CartItem cartItem = buildCartItem(cart, menuItem, quantity);
         return cartItemRepository.save(cartItem);
     }
 
+    CartItem buildCartItem(Cart cart, MenuItem menuItem, Integer quantity) {
+        return CartItem.builder()
+                .cart(cart)
+                .menuItemId(menuItem.getMenuItemId()).cartItemQuantity(quantity)
+                .cartItemPrice(menuItem.getMenuItemPrice()).build();
+    }
 
     Optional<CartItem> getCartItem(UUID customerId, UUID cartItemId) {
         return cartItemRepository.getCartItemByCartItemIdAndCart_customerId(cartItemId, customerId);

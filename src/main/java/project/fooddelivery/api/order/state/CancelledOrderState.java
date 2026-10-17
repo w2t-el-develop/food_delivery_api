@@ -1,12 +1,13 @@
-package project.fooddelivery.api.order.service;
+package project.fooddelivery.api.order.state;
 
 import lombok.RequiredArgsConstructor;
 import project.fooddelivery.api.order.exception.IllegalOrderStateException;
 import project.fooddelivery.api.order.exception.OrderAlreadyCanceledException;
+import project.fooddelivery.api.order.service.OrderService;
 
 @RequiredArgsConstructor
 public class CancelledOrderState implements OrderState {
-    private final OrderManagementService orderManagementService;
+    private final OrderService orderService;
 
     @Override
     public void processOrder() {
