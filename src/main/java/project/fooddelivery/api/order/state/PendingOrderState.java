@@ -11,7 +11,7 @@ public class PendingOrderState implements OrderState {
 
     @Override
     public void processOrder() {
-        orderService.changeOrderState(new ProcessingOrderState(orderService));
+//        orderService.changeOrderState(new ProcessingOrderState(orderService));
     }
 
     @Override
@@ -26,6 +26,6 @@ public class PendingOrderState implements OrderState {
 
     @Override
     public void cancelOrder() {
-        orderService.changeOrderState(new CancelledOrderState(orderService));
+//        orderService.changeOrderState(new CancelledOrderState(orderService));
     }
 }
