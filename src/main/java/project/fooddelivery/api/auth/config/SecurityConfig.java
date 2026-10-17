@@ -32,7 +32,7 @@ public class SecurityConfig {
     public static final String ROLES_CLAIM = "roles";
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http){
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -47,9 +47,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // Argon2id with the OWASP minimum: 19 MiB memory, 2 iterations, 1 degree of parallelism
         Argon2PasswordEncoder argon2 = new Argon2PasswordEncoder(16, 32, 1, 19 * 1024, 2);
-        // hashes are stored as {argon2}..., so the algorithm or its parameters can be changed later without breaking existing users
         return new DelegatingPasswordEncoder("argon2", Map.of("argon2", argon2));
     }
 

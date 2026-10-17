@@ -1,6 +1,7 @@
 package project.fooddelivery.api.auth.service;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -9,6 +10,7 @@ import project.fooddelivery.api.user.entity.User;
 import project.fooddelivery.api.user.repository.UserRepository;
 
 @Service
+@NullMarked
 @RequiredArgsConstructor
 public class AppUserDetailsService implements UserDetailsService {
 

@@ -25,7 +25,6 @@ public class RefreshToken {
     @Column(name = "user_id", nullable = false, updatable = false)
     private UUID userId;
 
-    // SHA-256 of the raw token, the raw value is only ever sent to the client
     @Column(name = "token_hash", unique = true, nullable = false, updatable = false, length = 64)
     private String tokenHash;
 

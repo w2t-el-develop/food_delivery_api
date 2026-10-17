@@ -9,7 +9,6 @@ import project.fooddelivery.api.order.entity.Order;
 import project.fooddelivery.api.order.handler.CartExistenceCheckHandler;
 import project.fooddelivery.api.order.handler.CustomerExistenceCheckHandler;
 import project.fooddelivery.api.order.handler.OrderHandler;
-import project.fooddelivery.api.order.handler.RestaurantAvailabilityCheckHandler;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +24,7 @@ public class OrderService {
     private void initializeOrderChainHandlers(){
         OrderHandler customerExistenceCheckHandler = new CustomerExistenceCheckHandler(customerService);
         OrderHandler cartExistenceCheckHandler = new CartExistenceCheckHandler(cartService);
-        OrderHandler restaurantAvailabilityCheckHandler = new RestaurantAvailabilityCheckHandler();
+//        OrderHandler restaurantAvailabilityCheckHandler = new RestaurantAvailabilityCheckHandler();
     }
 
 }

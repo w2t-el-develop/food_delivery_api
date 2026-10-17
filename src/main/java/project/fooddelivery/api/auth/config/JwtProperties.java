@@ -6,7 +6,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.time.Duration;
 
-// a class rather than a record because the logging aspects need to proxy every bean in the project
 @Getter
 @Setter
 @ConfigurationProperties(prefix = "jwt")
