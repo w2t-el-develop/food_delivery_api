@@ -19,4 +19,10 @@ public class CustomerService {
         return customerRepository.getCustomerByCustomerId(customerId);
     }
 
+    public Customer createCustomer(UUID userId) {
+        Customer customer = new Customer();
+        customer.setUserId(userId);
+        return customerRepository.save(customer);
+    }
+
 }
