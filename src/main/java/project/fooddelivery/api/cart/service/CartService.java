@@ -36,7 +36,7 @@ public class CartService {
 
     @Transactional
     public CartItem addToCart(UUID customerId, AddToCartRequestDto addToCartRequestDto) {
-        MenuItem menuItem = menuItemService.getMenuItemIfAvailable(addToCartRequestDto.menItemId());
+        MenuItem menuItem = menuItemService.getMenuItemByIdIfMenuItemIsAvailable(addToCartRequestDto.menItemId());
         Cart cart = getCartByCustomerId(customerId).orElseGet(() -> createCart(customerId));
         return cartItemService.createCartItem(cart, menuItem, addToCartRequestDto.quantity());
     }
