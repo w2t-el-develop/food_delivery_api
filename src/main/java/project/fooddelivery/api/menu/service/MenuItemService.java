@@ -22,7 +22,7 @@ public class MenuItemService {
         }
     }
 
-    public MenuItem getMenuItemIfAvailable(UUID menuItemId) {
+    public MenuItem getMenuItemByIdIfMenuItemIsAvailable(UUID menuItemId) {
         return menuItemRepository.getMenuItemByIdIfMenuItemIsAvailable(menuItemId)
                 .orElseThrow(()-> new MenuItemAvailabilityException(ErrorMessage.MENU_ITEM_NOT_AVAILABLE.getMessage()));
     }
