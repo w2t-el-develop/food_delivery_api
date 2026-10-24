@@ -3,6 +3,7 @@ package project.fooddelivery.api.order.handler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import project.fooddelivery.api.enums.ErrorMessage;
 import project.fooddelivery.api.order.dto.OrderRequestDto;
 import project.fooddelivery.api.order.entity.Order;
 import project.fooddelivery.api.restaurant.exception.RestaurantAvailabilityException;
@@ -19,7 +20,7 @@ public class RestaurantAvailabilityCheckHandler extends AbstractOrderHandler{
         if(restaurantService.isRestaurantOpen(orderRequestDto.restaurantId())){
             order.setRestaurantId(orderRequestDto.restaurantId());
         }else{
-            throw new RestaurantAvailabilityException("restaurant is closed at current time");
+            throw new RestaurantAvailabilityException(ErrorMessage.RESTAURANT_CLOSED.getMessage());
         }
         return super.handle(orderRequestDto, order);
     }

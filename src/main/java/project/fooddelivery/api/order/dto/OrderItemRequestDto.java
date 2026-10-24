@@ -9,6 +9,9 @@ public record OrderItemRequestDto(
         UUID cartItemId,
 
         @NotNull(message = "Menu item Id is required")
-        UUID menuItemId
+        UUID menuItemId,
+
+        @NotNull(message = "Order item quantity is required")
+        Integer orderItemQuantity
 ) {
 }
