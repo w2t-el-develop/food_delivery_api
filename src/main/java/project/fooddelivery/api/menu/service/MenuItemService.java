@@ -16,15 +16,14 @@ public class MenuItemService {
 
     private final MenuItemRepository menuItemRepository;
 
-    public boolean isMenuItemAvailable(UUID menuItemId) {
+    public void isMenuItemAvailable(UUID menuItemId) {
         if(menuItemRepository.isMenuItemAvailable(menuItemId)){
             throw new MenuItemAvailabilityException(ErrorMessage.MENU_ITEM_NOT_AVAILABLE.getMessage());
         }
-        return true;
     }
 
     public MenuItem getMenuItemIfAvailable(UUID menuItemId) {
-        return menuItemRepository.getMenuItemByIdIfAvailable(menuItemId)
+        return menuItemRepository.getMenuItemByIdIfMenuItemIsAvailable(menuItemId)
                 .orElseThrow(()-> new MenuItemAvailabilityException(ErrorMessage.MENU_ITEM_NOT_AVAILABLE.getMessage()));
     }
 
