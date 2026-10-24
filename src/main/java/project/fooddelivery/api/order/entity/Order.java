@@ -7,6 +7,8 @@ import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Builder
@@ -23,6 +25,10 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "order_id", nullable = false, updatable = false)
     private UUID orderId;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "order_id", nullable = false)
+    private List<OrderItem> orderItems = new ArrayList<>();
 
     @Column(name = "customer_id", nullable = false, updatable = false)
     private UUID customerId;
@@ -43,5 +49,7 @@ public class Order {
     @OneToOne
     @JoinColumn(name = "order_status_id", unique = true)
     private OrderStatus orderStatusId;
+
+
 
 }

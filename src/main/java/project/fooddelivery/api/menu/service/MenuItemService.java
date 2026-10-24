@@ -2,6 +2,7 @@ package project.fooddelivery.api.menu.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import project.fooddelivery.api.enums.ErrorMessage;
 import project.fooddelivery.api.exceptionhandling.ResourceNotFoundException;
 import project.fooddelivery.api.menu.entity.MenuItem;
 import project.fooddelivery.api.menu.exception.MenuItemAvailabilityException;
@@ -17,18 +18,18 @@ public class MenuItemService {
 
     public boolean isMenuItemAvailable(UUID menuItemId) {
         if(menuItemRepository.isMenuItemAvailable(menuItemId)){
-            throw new MenuItemAvailabilityException("Menu item is not available");
+            throw new MenuItemAvailabilityException(ErrorMessage.MENU_ITEM_NOT_AVAILABLE.getMessage());
         }
         return true;
     }
 
     public MenuItem getMenuItemIfAvailable(UUID menuItemId) {
         return menuItemRepository.getMenuItemByIdIfAvailable(menuItemId)
-                .orElseThrow(()-> new MenuItemAvailabilityException("Menu item is not available"));
+                .orElseThrow(()-> new MenuItemAvailabilityException(ErrorMessage.MENU_ITEM_NOT_AVAILABLE.getMessage()));
     }
 
     public MenuItem getMenuItemByMenuItemId(UUID menuItemId) {
         return menuItemRepository.getMenuItemByMenuItemId(menuItemId)
-                .orElseThrow(()-> new ResourceNotFoundException("MenuItem not found"));
+                .orElseThrow(()-> new ResourceNotFoundException(ErrorMessage.MENU_ITEM_NOT_FOUND.getMessage()));
     }
 }
