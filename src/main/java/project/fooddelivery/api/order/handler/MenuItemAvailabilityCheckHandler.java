@@ -26,7 +26,7 @@ public class MenuItemAvailabilityCheckHandler extends AbstractOrderHandler {
             newOrderItem.setMenuItemId(orderItemRequestDto.menuItemId());
             newOrderItems.add(newOrderItem);
         }
-        order.setOrderItems(newOrderItems);
+        order.addItems(newOrderItems);
         return super.handle(orderRequestDto, order);
     }
 }
