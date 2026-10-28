@@ -2,7 +2,6 @@ package project.fooddelivery.api.menu.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -17,13 +16,9 @@ import java.util.UUID;
 public class MenuItem {
 
     @Id
-    @ColumnDefault("uuidv7()")
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "menu_item_id", nullable = false, updatable = false)
     private UUID menuItemId;
-
-    @Column(name = "menu_id", nullable = false, updatable = false)
-    private UUID menuId;
 
     @Column(name = "menu_item_name", nullable = false)
     private String menuItemName;
@@ -33,4 +28,9 @@ public class MenuItem {
 
     @Column(name = "is_menu_item_available")
     private boolean isMenuItemAvailable;
+
+    public static MenuItem buildMenuItem(String menuItemName, BigDecimal menuItemPrice, boolean isMenuItemAvailable){
+        return MenuItem.builder().menuItemName(menuItemName)
+                .menuItemPrice(menuItemPrice).isMenuItemAvailable(isMenuItemAvailable).build();
+    }
 }
