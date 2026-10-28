@@ -19,7 +19,7 @@ public class OrderItem {
     @Id
     @ColumnDefault("uuidv7()")
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "order_id", nullable = false, updatable = false)
+    @Column(name = "order_item_id", nullable = false, updatable = false)
     private UUID orderItemId;
 
     @Column(name = "menu_item_id", nullable = false, updatable = false)

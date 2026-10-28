@@ -26,6 +26,8 @@ public class Order {
     @Column(name = "order_id", nullable = false, updatable = false)
     private UUID orderId;
 
+    @Builder.Default
+    @Setter(AccessLevel.NONE)
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "order_id", nullable = false)
     private List<OrderItem> orderItems = new ArrayList<>();
@@ -46,10 +48,18 @@ public class Order {
     @Column(name = "order_total_price", nullable = false, precision = 12, scale = 2)
     private BigDecimal orderTotalPrice;
 
-    @OneToOne
-    @JoinColumn(name = "order_status_id", unique = true)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "order_status_id", nullable = false)
     private OrderStatus orderStatusId;
 
+    public void addItem(OrderItem orderItem){
+        orderItems.add(orderItem);
+    }
+
+    public void addItems(List<OrderItem> orderItems){
+        if (orderItems == null) return;
+        orderItems.forEach(this::addItem);
+    }
 
 
 }
