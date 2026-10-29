@@ -15,23 +15,5 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, UUID> {
 
     boolean existsRestaurantByRestaurantId(UUID restaurantId);
 
-    @Modifying
-    @Query("""
-        UPDATE Restaurant r SET r.restaurantName = :restaurantName, r.restaurantDescription = :restaurantDescription 
-        WHERE r.restaurantId = :restaurantId
-""")
-    Integer updateRestaurant(
-            @Param("restaurantId") UUID restaurantId,
-            @Param("restaurantName") String restaurantName,
-            @Param("restaurantDescription") String restaurantDescription
-    );
-
-    @Modifying
-    @Query(
-            """ 
-        DELETE  From Restaurant r WHERE r.restaurantId = :restaurantId 
-"""
-    )
-    Integer bulkDeleteRestaurant(@Param("restaurantId") UUID restaurantId);
 
 }

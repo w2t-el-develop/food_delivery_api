@@ -18,22 +18,21 @@ import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
+@RequestMapping("restaurants")
 public class RestaurantController {
     private final RestaurantService restaurantService;
     private final RestaurantMapper restaurantMapper;
 
     @PostMapping
     public ResponseEntity<RestaurantResponseDto> addRestaurant(@Valid @RequestBody AddRestaurantRequestDto addRestaurantRequestDto){
-        Restaurant restaurant = restaurantService.addRestaurant(restaurantMapper.ToEntity(addRestaurantRequestDto));
-        return ResponseEntity.status(HttpStatus.CREATED).body(restaurantMapper.ToRequestDto(restaurant));
+        return ResponseEntity.status(HttpStatus.CREATED).body(restaurantMapper.ToRequestDto(restaurantService.addRestaurant(addRestaurantRequestDto)));
     }
 
     @PutMapping
     public ResponseEntity<RestaurantResponseDto> updateRestaurant(
             @Valid @RequestBody UpdateRestaurantRequestDto updateRestaurantRequestDto
     ){
-        Restaurant restaurant = restaurantService.updateRestaurant(restaurantMapper.ToEntity(updateRestaurantRequestDto));
-        return ResponseEntity.ok(restaurantMapper.ToRequestDto(restaurant));
+        return ResponseEntity.ok(restaurantMapper.ToRequestDto(restaurantService.updateRestaurant(updateRestaurantRequestDto)));
     }
 
     @DeleteMapping("/{restaurant-id}")

@@ -1,11 +1,14 @@
 package project.fooddelivery.api.restaurant.service;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import project.fooddelivery.api.exceptionhandling.ResourceNotFoundException;
+import project.fooddelivery.api.restaurant.dto.AddRestaurantRequestDto;
+import project.fooddelivery.api.restaurant.dto.UpdateRestaurantRequestDto;
 import project.fooddelivery.api.restaurant.entity.Restaurant;
 import project.fooddelivery.api.restaurant.exception.RestaurantExistenceException;
+import project.fooddelivery.api.restaurant.mapper.RestaurantMapper;
 import project.fooddelivery.api.restaurant.repositroy.RestaurantRepository;
 
 import java.util.UUID;
@@ -14,15 +17,17 @@ import java.util.UUID;
 @AllArgsConstructor
 public class RestaurantService {
     private final RestaurantRepository restaurantRepository;
+    private final RestaurantMapper restaurantMapper;
 
-    public Restaurant addRestaurant(Restaurant restaurant) {
-        isRestaurantExistence(restaurant.getRestaurantCode());
+    public Restaurant addRestaurant(AddRestaurantRequestDto addRestaurantRequestDto) {
+        Restaurant restaurant = restaurantMapper.ToEntity(addRestaurantRequestDto);
+        isRestaurantExist(restaurant.getRestaurantCode());
         return restaurantRepository.save(restaurant);
     }
 
-    public Restaurant updateRestaurant(Restaurant restaurant) {
-        isRestaurantFound(restaurant.getRestaurantId());
-        return restaurantRepository.save(restaurant);
+    public Restaurant updateRestaurant(UpdateRestaurantRequestDto updateRestaurantRequestDto) {
+        isRestaurantFound(updateRestaurantRequestDto.restaurantId());
+        return restaurantRepository.save(restaurantMapper.ToEntity(updateRestaurantRequestDto));
     }
 
     public void deleteRestaurantByID(UUID restaurantId) {
@@ -35,7 +40,7 @@ public class RestaurantService {
         return restaurantRepository.findById(restaurantId).orElseThrow(()-> new ResourceNotFoundException("the restaurant is not found"));
     }
 
-    private void isRestaurantExistence(String restaurantCode) {
+    private void isRestaurantExist(String restaurantCode) {
         boolean isRestaurantExistence =restaurantRepository.existsRestaurantByRestaurantCode(restaurantCode);
         if (isRestaurantExistence) throw new RestaurantExistenceException("the restaurant is already exist");
     }
