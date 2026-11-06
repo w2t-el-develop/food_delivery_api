@@ -1,6 +1,6 @@
-package project.fooddelivery.api.file.service;
+package project.fooddelivery.api.image.service;
 
-import project.fooddelivery.api.file.dto.StoredFile;
+import project.fooddelivery.api.image.dto.StoredImage;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 
@@ -10,10 +10,10 @@ import java.time.Duration;
 import java.util.List;
 
 public interface FileStorageService {
-    StoredFile upload(String prefix, String originalName, String contentType, Long size, InputStream content);
+    StoredImage upload(String prefix, String originalName, String contentType, Long size, InputStream content);
     ResponseInputStream<GetObjectResponse> download(String key);
     boolean exists(String key);
     void delete(String key);
-    List<StoredFile> list(String prefix);
+    List<StoredImage> list(String prefix);
     URL presignedDownloadUrl(String key, Duration ttl);
 }

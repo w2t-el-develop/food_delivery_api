@@ -1,8 +1,8 @@
-package project.fooddelivery.api.file.dto;
+package project.fooddelivery.api.image.dto;
 
 import java.time.LocalTime;
 
-public record StoredFile(
+public record StoredImage(
         String key,
         String originalName,
         String contentType,
