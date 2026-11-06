@@ -31,6 +31,7 @@
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <bouncycastle.version>1.86</bouncycastle.version>
         <aws.sdk.version>2.57.7</aws.sdk.version>
+        <tika.version>3.2.3</tika.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -150,6 +151,11 @@
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>s3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
+            <version>${tika.version}</version>
         </dependency>
     </dependencies>
     <build>
