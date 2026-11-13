@@ -30,4 +30,16 @@ public class OrderItem {
 
     @Column(name = "order_item_price", nullable = false, precision = 12, scale = 2)
     private BigDecimal orderItemPrice;
+
+    public BigDecimal getOrderItemTotalPrice() {
+        return orderItemPrice.multiply(BigDecimal.valueOf(orderItemQuantity));
+    }
+
+    public static OrderItem buildOrderItem(UUID menuItemId, Integer orderItemQuantity, BigDecimal orderItemPrice) {
+        return OrderItem.builder()
+                .menuItemId(menuItemId)
+                .orderItemQuantity(orderItemQuantity)
+                .orderItemPrice(orderItemPrice)
+                .build();
+    }
 }
