@@ -3,7 +3,7 @@ package project.fooddelivery.api.menu.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import project.fooddelivery.api.enums.ErrorMessage;
-import project.fooddelivery.api.exceptionhandling.ResourceNotFoundException;
+import project.fooddelivery.api.exception.ResourceNotFoundException;
 import project.fooddelivery.api.menu.dto.MenuItemRequestDto;
 import project.fooddelivery.api.menu.entity.MenuItem;
 import project.fooddelivery.api.menu.exception.MenuItemAvailabilityException;

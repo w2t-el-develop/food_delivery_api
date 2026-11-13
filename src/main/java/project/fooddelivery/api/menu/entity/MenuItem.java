@@ -23,6 +23,10 @@ public class MenuItem {
     @Column(name = "menu_item_name", nullable = false)
     private String menuItemName;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "menu_id")
+    private Menu menu;
+
     @Column(name = "menu_item_price", nullable = false, precision = 12, scale = 2)
     private BigDecimal menuItemPrice;
 
