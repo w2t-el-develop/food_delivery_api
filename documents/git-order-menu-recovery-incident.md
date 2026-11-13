@@ -277,16 +277,138 @@ Results:
 
 The full Maven test phase attempted to download missing Surefire artifacts but could not write to the sandboxed, read-only Maven repository at `~/.m2`. Compilation succeeded before that environmental failure. Full tests should still be run in a normal development environment with a writable Maven repository.
 
-## Final recovered references
+## Recovery references and milestones
 
-| Reference | Commit | Purpose |
+| Reference or milestone | Commit | Purpose |
 | --- | --- | --- |
 | `recovery/order-menu-2026-11-13` | `e45f6a1` | Exact safety snapshot of the initially discovered working tree |
-| `recovered/order-menu-work` | `93591f6` | Recovered unfinished work applied on top of `develop` |
-| `recovered/order-menu-work` | `c0382b3` | Restored total-price implementation and companion changes |
+| Initial repaired-tree commit | `93591f6` | Recovered unfinished work applied on top of `develop` |
+| Total-price recovery commit | `c0382b3` | Restored total-price implementation and companion changes |
+| `recovered/order-menu-work` at integration time | `3a29b18` | Complete recovered history and original incident report |
 | `develop` at recovery time | `2b15346` | Correct base used for the repaired branch |
 
 The original stashes remained available as `stash@{0}` and `stash@{1}` at the end of the investigation.
+
+## Post-recovery integration into the order branch
+
+After the recovery was validated and documented, the recovered history was integrated into the order-management feature branch.
+
+### Target branch naming
+
+The requested branch was described as `feature/order-management`, but the branch that actually exists in this repository is:
+
+```text
+feature/order-managemnt
+```
+
+The existing repository spelling was used. No second, similarly named branch was created.
+
+### Pre-merge state
+
+Before merging, the relevant references were:
+
+| Role | Reference | Commit |
+| --- | --- | --- |
+| Target | `feature/order-managemnt` | `9cbafce` |
+| Recovery source | `recovered/order-menu-work` | `3a29b18` |
+
+The working tree was clean before the branch operation.
+
+### Merge-strategy decision
+
+An ancestry check was performed before selecting a merge strategy:
+
+```bash
+git merge-base --is-ancestor \
+  feature/order-managemnt \
+  recovered/order-menu-work
+```
+
+The command returned exit status `0`. This proved that the target branch was already an ancestor of the recovered branch and that the branches had not diverged.
+
+A fast-forward was therefore the simplest correct merge. It moves the target branch pointer to the recovery source without creating a redundant merge commit, replaying commits, or rewriting commit identities.
+
+### Merge command
+
+The target branch was checked out and merged with an explicit fast-forward-only constraint:
+
+```bash
+git switch feature/order-managemnt
+git merge --ff-only recovered/order-menu-work
+```
+
+The `--ff-only` option was a safety constraint. It instructed Git to stop with an error if the histories had unexpectedly diverged. It prevented Git from silently creating a merge commit or opening a conflict-resolution workflow under assumptions that were no longer true.
+
+Git reported:
+
+```text
+Updating 9cbafce..3a29b18
+Fast-forward
+```
+
+Immediately after the operation, both local references pointed to the same commit:
+
+```text
+feature/order-managemnt   -> 3a29b18
+recovered/order-menu-work -> 3a29b18
+```
+
+The recovery branch was retained. It remains an additional named reference to the recovered history and was not deleted as part of the integration.
+
+### Post-merge verification
+
+The merged branch was compiled and its Git state was checked:
+
+```bash
+./mvnw -DskipTests compile
+git status --short --branch
+git rev-parse HEAD recovered/order-menu-work
+git rev-list --count \
+  origin/feature/order-managemnt..feature/order-managemnt
+```
+
+Verification results:
+
+- Maven compilation succeeded for 118 source files.
+- `HEAD` and `recovered/order-menu-work` both resolved to `3a29b18`.
+- The working tree was clean.
+- The local order branch was 22 commits ahead of `origin/feature/order-managemnt`.
+- No push was performed, so the remote branch remained unchanged.
+
+Compilation emitted an existing MapStruct warning about the unmapped `isMenuItemAvailable` property. It did not fail the build and was not introduced or addressed as part of the Git merge.
+
+### Reusable safe fast-forward procedure
+
+When integrating another recovered branch, use this sequence rather than assuming that a fast-forward is possible:
+
+```bash
+# 1. Confirm that no local file changes could be mixed into the operation.
+git status --short --branch
+
+# 2. Record both tips for the incident log.
+git rev-parse <target-branch> <recovery-branch>
+
+# 3. Prove that the target is an ancestor of the recovery source.
+git merge-base --is-ancestor <target-branch> <recovery-branch>
+
+# 4. Switch to the target and permit only a fast-forward.
+git switch <target-branch>
+git merge --ff-only <recovery-branch>
+
+# 5. Verify the result before any push.
+git status --short --branch
+git rev-parse HEAD <recovery-branch>
+```
+
+If the ancestry check or `--ff-only` merge fails, stop and inspect the divergence:
+
+```bash
+git log --graph --decorate --oneline \
+  <target-branch> <recovery-branch>
+git diff --stat <target-branch>...<recovery-branch>
+```
+
+Do not replace `--ff-only` with a normal merge, rebase, reset, or force push until the divergent commits have been reviewed and the appropriate integration strategy has been agreed upon.
 
 ## Runbook for similar incidents
 
