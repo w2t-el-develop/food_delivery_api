@@ -11,7 +11,7 @@ import project.fooddelivery.api.cart.entity.CartItem;
 import project.fooddelivery.api.cart.repository.CartItemRepository;
 import project.fooddelivery.api.cart.repository.CartRepository;
 import project.fooddelivery.api.menu.entity.MenuItem;
-import project.fooddelivery.api.exceptionhandling.ResourceNotFoundException;
+import project.fooddelivery.api.exception.ResourceNotFoundException;
 import project.fooddelivery.api.menu.service.MenuItemService;
 
 import java.util.Optional;

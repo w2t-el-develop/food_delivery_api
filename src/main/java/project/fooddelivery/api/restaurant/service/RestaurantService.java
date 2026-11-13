@@ -2,7 +2,7 @@ package project.fooddelivery.api.restaurant.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import project.fooddelivery.api.exceptionhandling.ResourceNotFoundException;
+import project.fooddelivery.api.exception.ResourceNotFoundException;
 import project.fooddelivery.api.restaurant.entity.Restaurant;
 import project.fooddelivery.api.restaurant.repository.RestaurantRepository;
 
