@@ -3,7 +3,7 @@ package project.fooddelivery.api.cart.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import project.fooddelivery.api.cart.repository.CartRepository;
-import project.fooddelivery.api.exceptionhandling.ResourceNotFoundException;
+import project.fooddelivery.api.exception.ResourceNotFoundException;
 
 import java.util.UUID;
 

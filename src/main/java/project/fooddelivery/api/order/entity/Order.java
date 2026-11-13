@@ -28,7 +28,7 @@ public class Order {
 
     @Builder.Default
     @Setter(AccessLevel.NONE)
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private List<OrderItem> orderItems = new ArrayList<>();
 

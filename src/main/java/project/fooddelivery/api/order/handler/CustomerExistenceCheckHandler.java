@@ -3,7 +3,7 @@ package project.fooddelivery.api.order.handler;
 import lombok.RequiredArgsConstructor;
 import project.fooddelivery.api.Customer.entity.Customer;
 import project.fooddelivery.api.Customer.service.CustomerService;
-import project.fooddelivery.api.exceptionhandling.ResourceNotFoundException;
+import project.fooddelivery.api.exception.ResourceNotFoundException;
 import project.fooddelivery.api.order.dto.OrderRequestDto;
 import project.fooddelivery.api.order.entity.Order;
 

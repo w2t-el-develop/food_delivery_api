@@ -9,7 +9,7 @@ import project.fooddelivery.api.cart.dto.UpdateQuantityRequestDto;
 import project.fooddelivery.api.cart.entity.Cart;
 import project.fooddelivery.api.cart.entity.CartItem;
 import project.fooddelivery.api.cart.repository.CartItemRepository;
-import project.fooddelivery.api.exceptionhandling.ResourceNotFoundException;
+import project.fooddelivery.api.exception.ResourceNotFoundException;
 import project.fooddelivery.api.menu.entity.MenuItem;
 
 import java.util.List;
