@@ -9,14 +9,14 @@
     <!-- ===================== -->
     <!-- Console Appender -->
     <!-- ===================== -->
-    <appender name="Console"
-              class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>
-                %green(%d{HH:mm:ss.SSS}) %blue(%-5level) %red([%thread]) %yellow(%logger{15}) - %cyan(%msg%n)
-            </pattern>
-        </encoder>
-    </appender>
+<!--    <appender name="Console"-->
+<!--              class="ch.qos.logback.core.ConsoleAppender">-->
+<!--        <encoder>-->
+<!--            <pattern>-->
+<!--                %green(%d{HH:mm:ss.SSS}) %blue(%-5level) %red([%thread]) %yellow(%logger{15}) - %cyan(%msg%n)-->
+<!--            </pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
 
     <!-- ===================== -->
     <!-- Rolling File Appender -->
@@ -48,7 +48,7 @@
     <!-- ===================== -->
     <root level="INFO">
         <appender-ref ref="RollingFile"/>
-        <appender-ref ref="Console"/>
+<!--        <appender-ref ref="Console"/>-->
     </root>
 
     <!-- ===================== -->

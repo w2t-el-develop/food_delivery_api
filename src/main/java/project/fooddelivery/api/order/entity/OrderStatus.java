@@ -3,9 +3,7 @@ package project.fooddelivery.api.order.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 
-import java.util.UUID;
 
 @Builder
 @Getter
@@ -17,10 +15,9 @@ import java.util.UUID;
 public class OrderStatus {
 
     @Id
-    @ColumnDefault("uuidv7()")
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_status_id", nullable = false, updatable = false)
-    private UUID orderStatusId;
+    private int orderStatusId;
 
     @Column(name = "order_status_code",  nullable = false, updatable = false, unique = true)
     private String orderStatusCode;

@@ -6,7 +6,7 @@ import project.fooddelivery.api.order.entity.OrderItem;
 
 import java.math.BigDecimal;
 
-public class TotalPriceCalculationHandler extends AbstractOrderHandler{
+public class TotalPriceCalculationHandler extends OrderHandler{
 
     @Override
     public Order handle(OrderRequestDto orderRequestDto, Order order) {
@@ -14,6 +14,6 @@ public class TotalPriceCalculationHandler extends AbstractOrderHandler{
                 .map(OrderItem::getOrderItemTotalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         order.setOrderTotalPrice(totalOrderPrice);
-        return super.handle(orderRequestDto, order);
+        return handleNext(orderRequestDto, order);
     }
 }
