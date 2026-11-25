@@ -2,6 +2,7 @@ package project.fooddelivery.api.order.handler;
 
 
 import lombok.RequiredArgsConstructor;
+import project.fooddelivery.api.menu.entity.MenuItem;
 import project.fooddelivery.api.menu.service.MenuItemService;
 import project.fooddelivery.api.order.dto.OrderItemRequestDto;
 import project.fooddelivery.api.order.dto.OrderRequestDto;
@@ -13,7 +14,7 @@ import java.util.List;
 
 
 @RequiredArgsConstructor
-public class MenuItemAvailabilityCheckHandler extends AbstractOrderHandler {
+public class MenuItemAvailabilityCheckHandler extends OrderHandler {
 
     private final MenuItemService menuItemService;
 
@@ -21,12 +22,14 @@ public class MenuItemAvailabilityCheckHandler extends AbstractOrderHandler {
     public Order handle(OrderRequestDto orderRequestDto, Order order) {
         List<OrderItem> newOrderItems = new ArrayList<>();
         for(OrderItemRequestDto orderItemRequestDto : orderRequestDto.orderItems()){
-            OrderItem newOrderItem = new OrderItem();
-            menuItemService.isMenuItemAvailable(orderItemRequestDto.menuItemId());
-            newOrderItem.setMenuItemId(orderItemRequestDto.menuItemId());
+            MenuItem menuItem = menuItemService.getMenuItemByIdIfMenuItemIsAvailable(orderItemRequestDto.menuItemId());
+            OrderItem newOrderItem = OrderItem.buildOrderItem(
+                    menuItem.getMenuItemId(),
+                    orderItemRequestDto.orderItemQuantity(),
+                    menuItem.getMenuItemPrice());
             newOrderItems.add(newOrderItem);
         }
         order.addItems(newOrderItems);
-        return super.handle(orderRequestDto, order);
+        return handleNext(orderRequestDto, order);
     }
 }

@@ -26,9 +26,6 @@ public class Restaurant {
     @Column(name = "restaurant_id", nullable = false, updatable = false)
     private UUID restaurantId;
 
-    @Column(name = "restaurant_code", nullable = false, length = 10, unique = true)
-    private String restaurantCode;
-
     @Column(name = "restaurant_name", nullable = false, length = 100)
     private String restaurantName;
 

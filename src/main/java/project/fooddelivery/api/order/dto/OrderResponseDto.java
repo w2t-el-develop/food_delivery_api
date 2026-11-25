@@ -5,6 +5,6 @@ import java.util.UUID;
 public record OrderResponseDto(
         UUID orderId,
         UUID customerId,
-        UUID restaurantI
+        UUID restaurantId
 ) {
 }

@@ -38,10 +38,7 @@ public class RefreshTokenService {
         return rawToken;
     }
 
-    /**
-     * Revokes the given refresh token and returns its owner, so a new pair can be issued (rotation).
-     * Presenting an already revoked token means it was stolen or replayed, so every session of the user is revoked.
-     */
+
     public UUID consumeRefreshToken(String rawToken) {
         RefreshToken refreshToken = refreshTokenRepository.findByTokenHash(hash(rawToken))
                 .orElseThrow(() -> new InvalidRefreshTokenException("Invalid refresh token"));

@@ -21,8 +21,12 @@ public enum ErrorMessage {
     CART_ITEMS_NOT_FOUND("Cart items not found"),
 
     // Menu
+    MENU_NOT_FOUND("Menu not found"),
     MENU_ITEM_NOT_FOUND("Menu item not found"),
     MENU_ITEM_NOT_AVAILABLE("Menu item is not available"),
+    MENU_ITEM_ALREADY_EXISTS("Menu item already exists"),
+    MENU_ITEM_NOT_ASSIGNED_TO_MENU("Menu item is not assigned to a menu"),
+
 
     // Restaurant
     RESTAURANT_NOT_FOUND("Restaurant not found"),
@@ -32,7 +36,11 @@ public enum ErrorMessage {
     ORDER_CANNOT_BE_PROCESSED("Order can not be processed at this moment"),
     ORDER_CANNOT_BE_DELIVERED("Order can not be delivered at this moment"),
     ORDER_ALREADY_PROCESSING("Order is already processing"),
-    ORDER_ALREADY_CANCELLED("Order is already cancelled");
+    ORDER_ALREADY_CANCELLED("Order is already cancelled"),
+
+    //File or image
+    FILE_IS_EMPTY("File is empty"),
+    FILE_COULD_NOT_BE_READ("Could not read file");
 
     private final String message;
 }

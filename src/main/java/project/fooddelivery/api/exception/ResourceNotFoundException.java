@@ -1,4 +1,4 @@
-package project.fooddelivery.api.exceptionhandling;
+package project.fooddelivery.api.exception;
 
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String message) {

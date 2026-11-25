@@ -12,7 +12,8 @@ import org.springframework.stereotype.Component;
 public class ExceptionAuditAspect {
 
     @AfterThrowing(
-            pointcut = "execution(* project.fooddelivery.api..*.*(..))",
+            pointcut = "execution(* project.fooddelivery.api..*.*(..)) " +
+                    "&& !within(@org.springframework.boot.context.properties.ConfigurationProperties *)",
             throwing = "ex"
     )
     public void logAfterException(JoinPoint joinPoint, Exception ex) {
