@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import project.fooddelivery.api.configuration.seaweedfs.SeaweedProperties;
 import project.fooddelivery.api.image.dto.StoredImage;
-import project.fooddelivery.api.image.exception.ImageNotFoundInStorageException;
+//import project.fooddelivery.api.image.exception.ImageNotFoundInStorageException;
 import project.fooddelivery.api.image.exception.StorageException;
 import project.fooddelivery.api.image.service.FileStorageService;
 import project.fooddelivery.api.utility.TimeUtility;
@@ -60,7 +60,7 @@ public class S3ImageStorageService implements FileStorageService {
                     RequestBody.fromInputStream(content, size));
             return new StoredImage(key, originalName, contentType, size, response.eTag(), LocalTime.now());
         } catch (SdkException ex) {
-            throw new StorageException("Upload failed for: " + key + "because: " + ex.toString());
+            throw new StorageException("Upload failed for: " + key + "because: " + ex);
         }
     }
 
@@ -69,7 +69,7 @@ public class S3ImageStorageService implements FileStorageService {
         try {
             return s3Client.getObject(objectBuilder -> objectBuilder.bucket(seaweedProperties.bucket()).key(key));
         } catch (NoSuchKeyException e) {
-            throw new ImageNotFoundInStorageException("No file found with key: " + key);
+            throw new StorageException("No file found with key: " + key);
         }
     }
 
@@ -80,7 +80,7 @@ public class S3ImageStorageService implements FileStorageService {
             return true;
         } catch (S3Exception e) {
             if (e.statusCode() == 404) return false;
-            throw new StorageException("HEAD failed for: " + key + "because: " + e.toString());
+            throw new StorageException("HEAD failed for: " + key + "because: " + e);
         }
     }
 

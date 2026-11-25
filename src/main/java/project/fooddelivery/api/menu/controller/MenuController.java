@@ -28,7 +28,7 @@ public class MenuController {
     @PostMapping("{menu-id}/menu-items")
     public ResponseEntity<MenuItemResponseDto> addMenuItem(@PathVariable("menu-id") UUID menuId,
                                                            @Valid @RequestBody MenuItemRequestDto menuItemRequestDto){
-        MenuItem addedMenuItem =  menuItemService.addMenuItem(menuItemRequestDto);
+        MenuItem addedMenuItem =  menuItemService.addMenuItem(menuId, menuItemRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(menuItemMapper.toResponseDto(addedMenuItem));
     }
 }

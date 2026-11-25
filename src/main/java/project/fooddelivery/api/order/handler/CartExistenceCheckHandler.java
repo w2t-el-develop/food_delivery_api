@@ -8,7 +8,7 @@ import project.fooddelivery.api.order.dto.OrderRequestDto;
 import project.fooddelivery.api.order.entity.Order;
 
 @RequiredArgsConstructor
-public class CartExistenceCheckHandler extends AbstractOrderHandler{
+public class CartExistenceCheckHandler extends OrderHandler{
 
     private final CartService cartService;
 
@@ -16,6 +16,6 @@ public class CartExistenceCheckHandler extends AbstractOrderHandler{
     public Order handle(OrderRequestDto orderRequestDto, Order order) {
         cartService.getCartByCustomerId(orderRequestDto.customerId())
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorMessage.CART_NOT_FOUND.getMessage()));
-        return super.handle(orderRequestDto, order);
+        return handleNext(orderRequestDto, order);
     }
 }

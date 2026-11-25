@@ -33,7 +33,7 @@ public class S3Config {
 
 
     @Bean
-    S3Presigner s3Presigner(SeaweedProperties seaweedProperties) {
+    S3Presigner s3Presigned(SeaweedProperties seaweedProperties) {
         return S3Presigner.builder()
                 .endpointOverride(URI.create(seaweedProperties.endpoint()))
                 .region(Region.of(seaweedProperties.region()))

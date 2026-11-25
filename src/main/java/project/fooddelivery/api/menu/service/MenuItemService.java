@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import project.fooddelivery.api.enums.ErrorMessage;
 import project.fooddelivery.api.exception.ResourceNotFoundException;
 import project.fooddelivery.api.menu.dto.MenuItemRequestDto;
+import project.fooddelivery.api.menu.entity.Menu;
 import project.fooddelivery.api.menu.entity.MenuItem;
 import project.fooddelivery.api.menu.exception.MenuItemAvailabilityException;
 import project.fooddelivery.api.menu.repository.MenuItemRepository;
@@ -17,12 +18,15 @@ import java.util.UUID;
 public class MenuItemService {
 
     private final MenuItemRepository menuItemRepository;
+    private final MenuService menuService;
 
-    public MenuItem addMenuItem(MenuItemRequestDto menuItemRequestDto) {
+    public MenuItem addMenuItem(UUID menuId, MenuItemRequestDto menuItemRequestDto) {
+        Menu menu = menuService.getMenuById(menuId);
         MenuItem newMenuItem = MenuItem.buildMenuItem(
                 menuItemRequestDto.menuItemName(),
                 BigDecimal.valueOf(menuItemRequestDto.menuItemPrice()),
                 menuItemRequestDto.isMenuItemAvailable());
+        menu.addItem(newMenuItem);
         return menuItemRepository.save(newMenuItem);
     }
 

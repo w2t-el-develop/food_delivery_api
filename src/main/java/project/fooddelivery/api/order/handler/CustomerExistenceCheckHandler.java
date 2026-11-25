@@ -8,7 +8,7 @@ import project.fooddelivery.api.order.dto.OrderRequestDto;
 import project.fooddelivery.api.order.entity.Order;
 
 @RequiredArgsConstructor
-public class CustomerExistenceCheckHandler extends AbstractOrderHandler {
+public class CustomerExistenceCheckHandler extends OrderHandler {
 
     private final CustomerService customerService;
 
@@ -17,6 +17,6 @@ public class CustomerExistenceCheckHandler extends AbstractOrderHandler {
         Customer customer = customerService.getCustomerByCustomerId(orderRequestDto.customerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
         order.setCustomerId(customer.getCustomerId());
-        return super.handle(orderRequestDto, order);
+        return handleNext(orderRequestDto, order);
     }
 }

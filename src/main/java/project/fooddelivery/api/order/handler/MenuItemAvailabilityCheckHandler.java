@@ -14,7 +14,7 @@ import java.util.List;
 
 
 @RequiredArgsConstructor
-public class MenuItemAvailabilityCheckHandler extends AbstractOrderHandler {
+public class MenuItemAvailabilityCheckHandler extends OrderHandler {
 
     private final MenuItemService menuItemService;
 
@@ -30,6 +30,6 @@ public class MenuItemAvailabilityCheckHandler extends AbstractOrderHandler {
             newOrderItems.add(newOrderItem);
         }
         order.addItems(newOrderItems);
-        return super.handle(orderRequestDto, order);
+        return handleNext(orderRequestDto, order);
     }
 }

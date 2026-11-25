@@ -15,4 +15,7 @@ public interface MenuItemRepository extends JpaRepository<MenuItem, UUID> {
 
     @Query("select menu_item from MenuItem menu_item where menu_item.menuItemId = :menuItemId and menu_item.isMenuItemAvailable = true ")
     Optional<MenuItem> getMenuItemByIdIfMenuItemIsAvailable(UUID menuItemId);
+
+
+
 }

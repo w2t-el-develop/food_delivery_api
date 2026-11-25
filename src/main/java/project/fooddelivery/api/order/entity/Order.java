@@ -50,7 +50,7 @@ public class Order {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "order_status_id", nullable = false)
-    private OrderStatus orderStatusId;
+    private OrderStatus orderStatus;
 
     public void addItem(OrderItem orderItem){
         orderItems.add(orderItem);
