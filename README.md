@@ -1356,3 +1356,154 @@ classDiagram
 ```
 
 The service starts in `PendingOrderState`. The currently implemented state changes are `Pending` to `Processing` through `processOrder`, `Pending` to `Cancelled` through `cancelOrder`, and `Processing` to `Delivered` through `deliverOrder`. Other state methods are either guards that throw an exception or placeholders with no state change.
+
+# Group Roles & User Management Specification
+
+## 1. Overview
+This document outlines the architecture, API endpoints, workflow, sequence flow, and detailed specifications for managing group-level roles and user group assignments based on the Group-Based Access Control (GBAC) architecture within `project.fooddelivery.api.grouprole`.
+
+---
+
+## 2. API Endpoints Specification
+
+| Method | Endpoint Path | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/v1/roles` | View all available system roles. |
+| `GET` | `/api/v1/groups/{groupId}/roles` | View roles currently assigned to a specific group. |
+| `POST` | `/api/v1/groups/{groupId}/roles` | Assign new roles to a group. |
+| `PUT` | `/api/v1/groups/{groupId}/roles` | Bulk update/synchronize roles for a group. |
+| `DELETE` | `/api/v1/groups/{groupId}/roles/{roleId}` | Remove a single role from a group. |
+| `POST` | `/api/v1/groups/{groupId}/users/{userId}` | Assign a user to a group. |
+| `DELETE` | `/api/v1/groups/{groupId}/users/{userId}` | Remove a user from a group. |
+| `PUT` | `/api/v1/users/{userId}/group` | Update/Transfer the group of a user. |
+
+---
+
+## 3. Detailed Endpoint Specification: Update Group Roles
+
+### Endpoint
+
+```http
+PUT /api/v1/groups/{groupId}/roles
+Content-Type: application/json
+```
+
+### Request:
+
+```json
+{
+  "roleIds": [
+    "0190f001-1111-7000-8000-000000000001",
+    "0190f001-1111-7000-8000-000000000002"
+  ]
+}
+```
+
+### The client does not send:
+
+- `groupRoleId`
+- `groupName` (derived from path/database context)
+- Timestamps or audit metadata
+
+---
+
+## 4. Business Behavior
+
+- Validate that the group exists by `groupId`. If not found, throw `GroupNotFoundException`.
+- Validate that all provided `roleIds` exist in the system. If any role is missing, throw `RoleNotFoundException`.
+- Clean input `roleIds` (remove nulls and duplicates).
+- Perform a transactional bulk synchronization: clear existing role associations for the target group and map the new set of roles.
+- Ensure all operations are executed within a single `@Transactional` boundary to guarantee data integrity.
+- Return the updated group roles response DTO containing the synchronized role list.
+
+---
+
+## 5. Workflows & Diagrams
+
+### 5.1 Flowchart (Update Group Roles)
+```mermaid
+flowchart TD
+    A(["Start: Admin selects Group & clicks Save"]) --> B{Does Group Exist?}
+    
+    B -- No --> C[Return 404 Group Not Found]
+    C --> END1([End])
+    
+    B -- Yes --> D{Are all Role IDs valid?}
+    
+    D -- No --> E[Return 400 Invalid Role ID]
+    E --> END2([End])
+    
+    D -- Yes --> F{Is assigned roles list empty?}
+    
+    F -- Yes - Cleared All --> G[Delete all Group_Role records for groupId]
+    F -- No - Assigned Roles --> H[Delete old records & Save new Group_Role list]
+    
+    G --> I[Return 200 OK - Group Roles Updated Successfully]
+    H --> I
+    
+    I --> END3([End])
+```
+
+---
+
+### 5.2 Sequence Diagram (`Update Group Roles`)
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Admin as Super Admin
+    participant Controller as GroupRoleController
+    participant Service as GroupRoleService
+    participant DB as Database
+
+    Admin->>Controller: PUT /api/v1/groups/{groupId}/roles (roleIds)
+    Controller->>Service: updateGroupRoles(groupId, roleIds)
+    
+    rect 
+        note over Service, DB: Validation Phase
+        Service->>DB: Check Group Existence & Validate Role IDs
+        DB-->>Service: Confirmation Valid
+    end
+
+    rect 
+        note over Service, DB: Persistence Phase (Bulk Sync)
+        Service->>DB: Delete existing Group_Role records for groupId
+        Service->>DB: Insert new Group_Role records
+        DB-->>Service: Confirmation Success
+    end
+
+    Service-->>Controller: Updated GroupRoles DTO
+    Controller-->>Admin: 200 OK (Success Response)
+```
+
+---
+
+## 6. Pseudocode
+
+```text
+FUNCTION updateGroupRoles(groupId, request):
+
+    group = groupRepository.findById(groupId)
+    IF group does not exist:
+        THROW GroupNotFoundException
+
+    FOR EACH roleId IN request.roleIds:
+        role = roleRepository.findById(roleId)
+        IF role does not exist:
+            THROW RoleNotFoundException
+
+    // Perform bulk synchronization within transactional boundary
+    groupRoleRepository.deleteByGroup_GroupId(groupId)
+    
+    FOR EACH roleId IN request.roleIds:
+        role = roleRepository.findById(roleId)
+        groupRole = new GroupRole(group, role)
+        groupRoleRepository.save(groupRole)
+
+    roles = groupRoleRepository.findByGroup_GroupId(groupId)
+    
+    RETURN GroupRolesResponseDto(
+        groupId = group.groupId,
+        groupName = group.groupName,
+        roles = roles
+    )
+```
